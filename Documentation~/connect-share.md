@@ -13,11 +13,11 @@ As shown below, once the connect share package is installed in your project, you
 
 ![Share Webgl Game](images/webgl-menu.png)
 
- By click the `Share Webgl Game` menu, the upload and share process will begin.  The following will take place:
- - The package will check if you are login, if not it will ask you to login.
+ Click the `Share Webgl Game` menu option to initiate the upload and share process.Following screens will appear acording to your login and build status.
+ - The package will check if you are logged in, if not it will ask you to login.
  - The package will check if you have built the webgl game, if not it will guide you to build the game.
  - Then you can update the project title and upload an thumbnail for the project.
- - After those steps you just need to click the upload button and waiting the final shared game link.
+ - After those steps you just need to click the upload button and wait for the game's webpage link.
 
 
  ![form](images/webgl-form.png)

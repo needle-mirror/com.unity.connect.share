@@ -31,6 +31,7 @@ namespace Unity.Connect.Share.Editor
                     onThumbnailSelect: (thumbnailDir) => dispatch(new ThumbnailSelectAction() { thumbnailDir = thumbnailDir }),
                     onDestroy: () => dispatch(new DestroyAction()),
                     stopUploadAction: () => dispatch(new StopUploadAction()),
+					onErrorAction: (errorMsg) => dispatch(new OnErrorAction() {errorMsg = errorMsg}),
                     shareState: state.shareState),
                 builder: (_context, widget) => widget
             );
@@ -43,16 +44,18 @@ namespace Unity.Connect.Share.Editor
         public readonly Action<string> onThumbnailSelect;
         public readonly Action onDestroy;
         public readonly Action stopUploadAction;
+		public readonly Action<string> onErrorAction;
         public readonly ShareState shareState;
 
         public ShareWidget(Key key = null, Action<string> onUpload = null, 
             Action<string> onThumbnailSelect = null, Action onDestroy = null, 
-            Action stopUploadAction = null, ShareState shareState = null) : base(key)
+            Action stopUploadAction = null, Action<string> onErrorAction = null, ShareState shareState = null) : base(key)
         {
             this.onUpload = onUpload;
             this.onThumbnailSelect = onThumbnailSelect;
             this.onDestroy = onDestroy;
             this.stopUploadAction = stopUploadAction;
+			this.onErrorAction = onErrorAction;
             this.shareState = shareState;
 
         }
@@ -73,7 +76,8 @@ namespace Unity.Connect.Share.Editor
     {
         private TextEditingController _controller;
         private FocusNode _focusNode;
-        
+        private const int thumbnailLimit = 5 * 1024 * 1024;
+
         public override void initState() {
             base.initState();
             _controller = new TextEditingController(Application.productName);
@@ -147,7 +151,14 @@ namespace Unity.Connect.Share.Editor
                                         string path = EditorUtility.OpenFilePanel("Select thumbnail", "", "jpg,jpeg,png");
                                         if (path.Length != 0)
                                         {
-                                            widget.onThumbnailSelect(path);
+                                            var fileInfo = new System.IO.FileInfo(path);
+						
+											if (fileInfo.Length > thumbnailLimit) {
+												widget.onErrorAction("Max file size 5MB");
+											} else {
+												widget.onThumbnailSelect(path);
+											}
+											
                                         }
                                     }
                                 );
