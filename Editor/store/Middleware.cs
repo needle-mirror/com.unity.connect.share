@@ -19,6 +19,8 @@ namespace Unity.Connect.Share.Editor.store
         private const string thumbnail = "thumbnail.png";
         private const string uploadEndpoint = "/api/webgl/upload";
         private const string queryProgressEndpoint = "/api/webgl/progress";
+		private const int zipFileLimit = 100 * 1024 * 1024;
+
         public static Middleware<AppState> Create() {
             return (store) => (next) => (action) => {
                 var result = next(action);
@@ -55,12 +57,12 @@ namespace Unity.Connect.Share.Editor.store
                 return;
             }
             
-            Zip(store);
-            
-            store.Dispatch(new UploadStartAction());
+            if (Zip(store)) {
+				store.Dispatch(new UploadStartAction());
+			}
         }
 
-        private static void Zip(Store<AppState> store)
+        private static bool Zip(Store<AppState> store)
         {
             var projectDir = Directory.GetParent(Application.dataPath).FullName;
             var buildOutputDir = store.state.shareState.buildOutputDir;
@@ -71,8 +73,15 @@ namespace Unity.Connect.Share.Editor.store
             CopyThumbnail(store);
 
             ZipFile.CreateFromDirectory(buildOutputDir, destPath);
-            
-            store.Dispatch(new ZipPathChangeAction{ zipPath = destPath });
+            var fileInfo = new System.IO.FileInfo(destPath);
+						
+			if (fileInfo.Length > zipFileLimit) {
+				store.Dispatch(new OnErrorAction{errorMsg = "Max webgl game zip size 100MB"});
+				return false;
+			} else {
+				store.Dispatch(new ZipPathChangeAction{ zipPath = destPath });
+				return true;
+			} 
         }
 
         private static void CopyThumbnail(Store<AppState> store)
@@ -291,4 +300,4 @@ namespace Unity.Connect.Share.Editor.store
         public string error;
     }
     
-}
+}	
