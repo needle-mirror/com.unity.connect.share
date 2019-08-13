@@ -8,6 +8,7 @@ namespace Unity.Connect.Share.Editor.store
     public class BuildFinishAction : ShareAction
     {
         public string outputDir;
+        public string buildGUID;
     }
     
     public class ZipPathChangeAction : ShareAction
@@ -96,7 +97,8 @@ namespace Unity.Connect.Share.Editor.store
             {
                 case BuildFinishAction build:
                     return old.copyWith(
-                        buildOutputDir: build.outputDir
+                        buildOutputDir: build.outputDir,
+                        buildGUID: build.buildGUID                       
                     );
                   
                 case ZipPathChangeAction zip:
@@ -143,13 +145,13 @@ namespace Unity.Connect.Share.Editor.store
                     return old.copyWith(title: titleChangeAction.title);
 
                 case DestroyAction destroyAction:
-                    return new ShareState(buildOutputDir: old.buildOutputDir);
+                    return new ShareState(buildOutputDir: old.buildOutputDir, buildGUID: old.buildGUID);
 
                 case OnErrorAction errorAction:
                     return old.copyWith(errorMsg: errorAction.errorMsg);
                 
                 case StopUploadAction stopUploadAction:
-                    return new ShareState(buildOutputDir: old.buildOutputDir);
+                    return new ShareState(buildOutputDir: old.buildOutputDir, buildGUID: old.buildGUID);
                 case NotLoginAction login:
                     return old.copyWith(
                         step: ShareStep.login

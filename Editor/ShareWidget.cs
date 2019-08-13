@@ -12,6 +12,8 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityEditor.Build;
+using UnityEditor.Build.Reporting;
 using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
 using Rect = Unity.UIWidgets.ui.Rect;
@@ -64,14 +66,19 @@ namespace Unity.Connect.Share.Editor
         {
             return new _WebGLUploadWidgetState();
         }
-
-        [PostProcessBuildAttribute(1)]
-        public static void OnPostprocessBuild(BuildTarget target, string outputDir)
-        {
-            StoreFactory.get().Dispatch(new BuildFinishAction { outputDir = outputDir });
-        }
     }
 
+    class CustomBuildProcessor : IPostprocessBuildWithReport
+    {
+        public int callbackOrder { get { return 0; } }
+        public void OnPostprocessBuild(BuildReport report)
+        {
+            if (string.Equals(report.summary.platform.ToString(), "webgl", StringComparison.OrdinalIgnoreCase))
+            {
+                StoreFactory.get().Dispatch(new BuildFinishAction { outputDir = report.summary.outputPath, buildGUID = report.summary.guid.ToString()});
+            }
+        }
+    }
     class _WebGLUploadWidgetState : State<ShareWidget>
     {
         private TextEditingController _controller;

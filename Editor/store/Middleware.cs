@@ -112,16 +112,24 @@ namespace Unity.Connect.Share.Editor.store
 
             var path = store.state.shareState.zipPath;
             var title = store.state.shareState.title;
+            var buildGUID = store.state.shareState.buildGUID;
+            
             var baseUrl = getAPIBaseUrl();
             var projectId = GetProjectId();
             var formSections = new List<IMultipartFormSection>();
             
             formSections.Add(new MultipartFormDataSection("title", title));
             
+            if (buildGUID.Length > 0) {
+                formSections.Add(new MultipartFormDataSection("buildGUID", buildGUID));
+            }
+            
             if (projectId.Length > 0)
             {
                 formSections.Add(new MultipartFormDataSection("projectId", projectId));
             }
+            
+            
 
             formSections.Add(new MultipartFormFileSection("file", 
                 File.ReadAllBytes(path), Path.GetFileName(path), "application/zip"));

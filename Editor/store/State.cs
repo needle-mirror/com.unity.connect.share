@@ -12,12 +12,13 @@ namespace Unity.Connect.Share.Editor.store
 
     public class ShareState
     {
-        public ShareState(string title = null, string buildOutputDir = null, 
+        public ShareState(string title = null, string buildOutputDir = null, string buildGUID = null,
             string zipPath = null, ShareStep step = default, string errorMsg = null, 
             string key = null, int progress = 0, string url = null, string thumbnailDir = null)
         {
             this.title = title;
             this.buildOutputDir = buildOutputDir;
+            this.buildGUID = buildGUID;
             this.zipPath = zipPath;
             this.step = step;
             this.errorMsg = errorMsg;
@@ -27,13 +28,14 @@ namespace Unity.Connect.Share.Editor.store
             this.thumbnailDir = thumbnailDir;
         }
 
-        public ShareState copyWith(string title = null, string buildOutputDir = null, string zipPath = null,
+        public ShareState copyWith(string title = null, string buildOutputDir = null, string buildGUID = null, string zipPath = null,
             ShareStep? step = default, string errorMsg = null, string key = null, int? progress = null,
             string url = null, string thumbnailDir = null)
         {
             return new ShareState(
                 title: title ?? this.title,
                 buildOutputDir: buildOutputDir ?? this.buildOutputDir,
+                buildGUID: buildGUID ?? this.buildGUID,
                 zipPath: zipPath??this.zipPath,
                 step: step??this.step,
                 errorMsg: errorMsg??this.errorMsg,
@@ -46,6 +48,7 @@ namespace Unity.Connect.Share.Editor.store
 
         public readonly string title;
         public readonly string buildOutputDir;
+        public readonly string buildGUID;
         public readonly string zipPath;
         public readonly ShareStep step;
         public readonly string key;
