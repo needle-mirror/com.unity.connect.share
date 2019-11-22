@@ -1,3 +1,5 @@
+using System;
+
 namespace Unity.Connect.Share.Editor.store
 {
     public class AppState
@@ -10,6 +12,7 @@ namespace Unity.Connect.Share.Editor.store
         public readonly ShareState shareState;
     }
 
+    [Serializable]
     public class ShareState
     {
         public ShareState(string title = null, string buildOutputDir = null, string buildGUID = null,
@@ -46,16 +49,17 @@ namespace Unity.Connect.Share.Editor.store
                 );
         }
 
-        public readonly string title;
-        public readonly string buildOutputDir;
-        public readonly string buildGUID;
-        public readonly string zipPath;
-        public readonly ShareStep step;
-        public readonly string key;
-        public readonly string errorMsg;
-        public readonly int progress;
-        public readonly string url;
-        public readonly string thumbnailDir;
+        // NOTE not readonly in order to work with JSON serialization
+        public /*readonly*/ string title;
+        public /*readonly*/ string buildOutputDir;
+        public /*readonly*/ string buildGUID;
+        public /*readonly*/ string zipPath;
+        public /*readonly*/ ShareStep step;
+        public /*readonly*/ string key;
+        public /*readonly*/ string errorMsg;
+        public /*readonly*/ int progress;
+        public /*readonly*/ string url;
+        public /*readonly*/ string thumbnailDir;
 
     }
 

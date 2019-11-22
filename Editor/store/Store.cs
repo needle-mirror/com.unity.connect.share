@@ -1,4 +1,5 @@
 using Unity.Connect.Share.UIWidgets.Redux;
+using UnityEditor;
 
 namespace Unity.Connect.Share.Editor.store
 {
@@ -8,9 +9,17 @@ namespace Unity.Connect.Share.Editor.store
 
         static void _setupStore()
         {
-            _store = new Store<AppState>(ShareReducer.reducer, 
-                initialState: new AppState(shareState: new ShareState()),
-                middlewares: ShareMiddleware.Create());    
+            var shareState = new ShareState();
+            EditorJsonUtility.FromJsonOverwrite(
+                SessionState.GetString(typeof(ConnectShareEditorWindow).Name, "{}"),
+                shareState
+            );
+
+            _store = new Store<AppState>(
+                ShareReducer.reducer,
+                initialState: new AppState(shareState: shareState),
+                middlewares: ShareMiddleware.Create()
+            );
         }
         
         public static Store<AppState> get()

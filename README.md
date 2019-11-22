@@ -1,22 +1,25 @@
-# Webgl share
+# Share WebGL Game
 
 ## Introduction
-Webgl share is a plugin package for Unity Editor which helps developers to build and upload webgl game to unity connect. 
-Others can view, play, share, like and comments on connect.
+Share WebGL Game is a package for Unity Editor, enabling developers to upload their WebGL games to Unity Connect.
+The shared games can be played and commented by anyone knowing the link the the shared game.
 
 #### Developer-Friendly
-User just need to download our package and it's very easy for user to publish webgl game on connect through our guides.
+The user just needs to download Share WebGL Game using the package manager, build their game for WebGL, and upload the game to Unity Connect by following our instructions.
 
 
-### Example
-Click menu on the top of editor(Window -> Share Webgl Game). 
-If you are not login, it will ask you to login first.
-If you are not build the game yet, it will tell you to build you game first.
-And then, it will ask you to update the game title and thumbnail which are used for create connect game.
-After those steps you can upload project to connect and after upload and processing finished you will get 
-a connect game link.
+### Instructions
+- Install Share WebGL Game using the package manager.
+- Click menu on the top of editor (_Window > Share Webgl Game_). 
+- If you are not logged in, you will be instructed to do so.
+- If you have not built the game yet, you will be instructed to do so.
+- You are asked to update the game title and thumbnail.
+- You can now upload your project to Unity Connect and after. You will get a game link after a successful upload.
 
-## Requirement
+## Requirements
 
 #### Unity
-Install **Unity 2018.3** or above. You can download the latest Unity on https://unity3d.com/get-unity/download
+Install **Unity 2018.4** or newer. You can download the latest Unity from https://unity3d.com/get-unity/download.
+
+## Limitations
+The zipped game build cannot exceed 100 MB.

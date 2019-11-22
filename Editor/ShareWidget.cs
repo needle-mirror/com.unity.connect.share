@@ -11,17 +11,30 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.Callbacks;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using Canvas = Unity.UIWidgets.ui.Canvas;
 using Color = Unity.UIWidgets.ui.Color;
-using Rect = Unity.UIWidgets.ui.Rect;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using Image = Unity.UIWidgets.widgets.Image;
+using System.Linq;
 
 namespace Unity.Connect.Share.Editor
 {
+    public static class Utils
+    {
+        // supports GB, MB, KB, or B
+        public static string FormatBytes(ulong bytes)
+        {
+            double gb = bytes / (1024.0 * 1024.0 * 1024.0);
+            double mb = bytes / (1024.0 * 1024.0);
+            double kb = bytes / 1024.0;
+            // Use :#.000 to specify further precision if wanted
+            if (mb >= 1000) return $"{gb/*:#.000*/} GB";
+            if (kb >= 1000) return $"{mb/*:#.000*/} MB";
+            if (kb >= 1) return $"{kb/*:*#.000*/} KB";
+            return $"{bytes} B";
+        }
+    }
 
     public class ShareReduxWidget:StatelessWidget
     {
@@ -33,7 +46,7 @@ namespace Unity.Connect.Share.Editor
                     onThumbnailSelect: (thumbnailDir) => dispatch(new ThumbnailSelectAction() { thumbnailDir = thumbnailDir }),
                     onDestroy: () => dispatch(new DestroyAction()),
                     stopUploadAction: () => dispatch(new StopUploadAction()),
-					onErrorAction: (errorMsg) => dispatch(new OnErrorAction() {errorMsg = errorMsg}),
+                    onErrorAction: (errorMsg) => dispatch(new OnErrorAction() {errorMsg = errorMsg}),
                     shareState: state.shareState),
                 builder: (_context, widget) => widget
             );
@@ -46,7 +59,7 @@ namespace Unity.Connect.Share.Editor
         public readonly Action<string> onThumbnailSelect;
         public readonly Action onDestroy;
         public readonly Action stopUploadAction;
-		public readonly Action<string> onErrorAction;
+        public readonly Action<string> onErrorAction;
         public readonly ShareState shareState;
 
         public ShareWidget(Key key = null, Action<string> onUpload = null, 
@@ -57,7 +70,7 @@ namespace Unity.Connect.Share.Editor
             this.onThumbnailSelect = onThumbnailSelect;
             this.onDestroy = onDestroy;
             this.stopUploadAction = stopUploadAction;
-			this.onErrorAction = onErrorAction;
+            this.onErrorAction = onErrorAction;
             this.shareState = shareState;
 
         }
@@ -71,19 +84,51 @@ namespace Unity.Connect.Share.Editor
     class CustomBuildProcessor : IPostprocessBuildWithReport
     {
         public int callbackOrder { get { return 0; } }
+
         public void OnPostprocessBuild(BuildReport report)
         {
-            if (string.Equals(report.summary.platform.ToString(), "webgl", StringComparison.OrdinalIgnoreCase))
+            if (report.summary.platform == BuildTarget.WebGL)
             {
-                StoreFactory.get().Dispatch(new BuildFinishAction { outputDir = report.summary.outputPath, buildGUID = report.summary.guid.ToString()});
+                StoreFactory.get().Dispatch(new BuildFinishAction
+                {
+                    outputDir = report.summary.outputPath,
+                    buildGUID = report.summary.guid.ToString()
+                });
+
+                // Write metadate files into the build directory
+                try
+                {
+                    // depdendencies.txt: list of "depepedency@version"
+                    var depFile = $"{report.summary.outputPath}/dependencies.txt";
+                    using(var sw = new StreamWriter(depFile, false))
+                    {
+                        PackageManagerProxy.GetAllVisiblePackages()
+                            .Select(pkg => $"{pkg.name}@{pkg.version}")
+                            // We probably don't have the package.json of the used Microgame available
+                            // so add the information manually.
+                            .Concat(new [] { $"{Application.productName}@{Application.version}" })
+                            .Distinct()
+                            .ToList()
+                            .ForEach(depStr => sw.WriteLine(depStr));
+                    }
+
+                    // The used Unity version.
+                    var verFile = $"{report.summary.outputPath}/ProjectVersion.txt";
+                    File.Copy("ProjectSettings/ProjectVersion.txt", verFile, overwrite: true);
+                }
+                catch(Exception e)
+                {
+                    Debug.LogException(e);
+                }
             }
         }
     }
+
     class _WebGLUploadWidgetState : State<ShareWidget>
     {
         private TextEditingController _controller;
         private FocusNode _focusNode;
-        private const int thumbnailLimit = 5 * 1024 * 1024;
+        const long ThumbnailLimitBytes = 5 * 1024 * 1024;
 
         public override void initState() {
             base.initState();
@@ -96,6 +141,21 @@ namespace Unity.Connect.Share.Editor
             _focusNode.dispose();
             base.dispose();
         }
+
+        private Widget renderInfoText(string text) {
+            var label = new Text(data: text, style: new TextStyle(fontSize: 15f, color: new Color(0xFF2F2F2F), fontWeight: FontWeight.w700));
+            return new Container(
+                    padding: EdgeInsets.only(top: 15, bottom: 10),
+                    child:
+                        new Row(
+                            children: new List<Widget>()
+                            {
+                                label
+                            }
+                        )
+             );
+        }
+
 
         private Widget renderLabel(string text) {
             var label = new Text(data: text, style: new TextStyle(fontSize: 13f, color: new Color(0xFF8B8B8B), fontWeight: FontWeight.w700));
@@ -127,7 +187,7 @@ namespace Unity.Connect.Share.Editor
                     padding: EdgeInsets.all(20),
                     margin: EdgeInsets.only(top: 20),
                     alignment: Alignment.center,
-                    child: new Text(data: "Upload", style: new TextStyle(fontSize: 15f, color: new Color(0xFFFFFFFF), fontWeight: FontWeight.w700)),
+                    child: new Text(data: "Share", style: new TextStyle(fontSize: 15f, color: new Color(0xFFFFFFFF), fontWeight: FontWeight.w700)),
                     height: 58f
 
                 ),
@@ -159,18 +219,22 @@ namespace Unity.Connect.Share.Editor
                                         if (path.Length != 0)
                                         {
                                             var fileInfo = new System.IO.FileInfo(path);
-						
-											if (fileInfo.Length > thumbnailLimit) {
-												widget.onErrorAction("Max file size 5MB");
-											} else {
-												widget.onThumbnailSelect(path);
-											}
-											
+                        
+                                            if (fileInfo.Length > ThumbnailLimitBytes) {
+                                                widget.onErrorAction($"Max. file size {Utils.FormatBytes(ThumbnailLimitBytes)}");
+                                            } else {
+                                                widget.onThumbnailSelect(path);
+                                            }
+                                            
                                         }
                                     }
                                 );
-            var label = new Text(data: "Max file size 5MB (PNG or JPG)", style: new TextStyle(fontSize: 13f, color: new Color(0xFF888888)));
-            
+
+            var label = new Text(
+                data: $"Max. file size {Utils.FormatBytes(ThumbnailLimitBytes)} (PNG or JPG)",
+                style: new TextStyle(fontSize: 13f, color: new Color(0xFF888888))
+            );
+
             return new Container(
                     color: new Color(0xFFF6F6F6),
                     padding: EdgeInsets.only(top: 10, bottom: 10),
@@ -307,8 +371,8 @@ namespace Unity.Connect.Share.Editor
         
         private Widget renderNoBuildLogo() 
         {
-            var logo = Image.asset( "html5-logo", fit: BoxFit.cover, width: 24, height: 34);
-            var label = new Text(data: "Webgl", style: new TextStyle(fontSize: 15f, color: new Color(0xFF424242), fontWeight: FontWeight.w700));
+            var logo = Image.asset( "html5-logo", fit: BoxFit.cover, width: 34, height: 34);
+            var label = new Text(data: "WebGL", style: new TextStyle(fontSize: 15f, color: new Color(0xFF424242), fontWeight: FontWeight.w700));
             var text = new Container(
                     child:
                         new Row(
@@ -350,7 +414,7 @@ namespace Unity.Connect.Share.Editor
             var button = new Container(color: Color.fromRGBO(33, 150, 243, 0.3f),
                             padding: EdgeInsets.all(20),
                             alignment: Alignment.bottomCenter,
-                            child: new Text(data: "Upload", style: new TextStyle(fontSize: 13f, color: new Color(0xFFFFFFFF))),
+                            child: new Text(data: "Share", style: new TextStyle(fontSize: 15f, color: new Color(0xFFFFFFFF), fontWeight: FontWeight.w700)),
                             height: 58f
                         
                 );
@@ -369,6 +433,7 @@ namespace Unity.Connect.Share.Editor
         private Widget renderUploadWidget() {
             var list = new List<Widget>
                 {
+                    renderInfoText("Upload and Share your WebGL Game to Unity Connect"),
                     renderLabel("Project Name"),
                     renderTitleInput(),
                     renderLabel("Project Thumbnail (Optional)"),
@@ -444,7 +509,8 @@ namespace Unity.Connect.Share.Editor
                             children: new List<Widget>{
                                 renderIcon(Icons.cloud_done),
                                 renderHighlightedLabel("Upload completed:"),
-                                renderProjectUrl()
+                                renderProjectUrl(),
+                                renderNormalLabel("You can play your game in a web browser and share it with your friends!")
                             }
                         ),
                         constraints: BoxConstraints.expand().widthConstraints(),
@@ -495,8 +561,8 @@ namespace Unity.Connect.Share.Editor
                                                 children: new List<Widget>
                                                 {
                                                     renderNoBuildLogo(),
-                                                    renderHighlightedLabel("You need to build a WebGL build to upload"),
-                                                    renderNormalLabel("Go to File → Build Settings → Select WebGL → Build")
+                                                    renderHighlightedLabel("You need to build a WebGL build to share your game"),
+                                                    renderNormalLabel("Go to: File > Build Settings > Select WebGL Platform > Build")
                                                 }
                                             )),
                                  renderNoBuildButtons()
@@ -515,8 +581,8 @@ namespace Unity.Connect.Share.Editor
                             children: new List<Widget>
                             {
                                 renderIcon(Icons.account_circle),
-                                renderHighlightedLabel("You need to be signed in to upload"),
-                                renderNormalLabel("In Unity Editor go to Account → Sign in...")
+                                renderHighlightedLabel("You need to be signed in to share your game"),
+                                renderNormalLabel("In Unity Editor go to: Account > Sign In...")
                             }
                         )),
                     renderNoBuildButtons()

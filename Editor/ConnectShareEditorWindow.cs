@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Unity.Connect.Share.Editor.store;
 using Unity.Connect.Share.UIWidgets.Redux;
 using Unity.UIWidgets.async;
@@ -8,32 +7,31 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.ui;
 using UnityEditor;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace Unity.Connect.Share.Editor
-{   
+{
     public class ConnectShareEditorWindow : UIWidgetsEditorWindow
     {
-        // Add a menu item named "Share WebGL Game" to Window in the menu bar.
         [MenuItem("Window/Share WebGL Game")]
-        static void Connect()
+        static void OpenShareWindow()
         {
             string token = UnityConnectSession.instance.GetAccessToken();
             if (token.Length == 0)
             {
                 StoreFactory.get().Dispatch(new NotLoginAction());
             }
-            
-            ConnectShareEditorWindow window = (ConnectShareEditorWindow) GetWindow(typeof(ConnectShareEditorWindow));
-            window.minSize = new Vector2(600f, 360f);
+
+            var window = GetWindow<ConnectShareEditorWindow>();
+            window.titleContent.text = "Share";
+            window.minSize = new Vector2(600f, 419f);
             window.maxSize = window.minSize;
             window.Show();
         }
-        
+
         public static UIWidgetsCoroutine StartCoroutine(IEnumerator coroutine)
         {
-            ConnectShareEditorWindow window = (ConnectShareEditorWindow) GetWindow(typeof(ConnectShareEditorWindow), false, "", false);
+            var window = GetWindow<ConnectShareEditorWindow>(false, "", false);
             return window.window.startCoroutine(coroutine);
         }
 
@@ -49,13 +47,27 @@ namespace Unity.Connect.Share.Editor
             FontManager.instance.addFont(Resources.Load<Font>("MaterialIcons-Regular"), "Material Icons");
         }
 
+        protected override void OnEnable()
+        {
+            AssemblyReloadEvents.beforeAssemblyReload += OnBeforeAssemblyReload;
+            base.OnEnable();
+        }
+
+        public void OnBeforeAssemblyReload()
+        {
+            SaveStateToSessionState();
+        }
+
         protected override void OnDisable()
         {
+            AssemblyReloadEvents.beforeAssemblyReload -= OnBeforeAssemblyReload;
             StoreFactory.get().Dispatch(new DestroyAction());
         }
+
+        static void SaveStateToSessionState()
+        {
+            var shareState = StoreFactory.get().state.shareState;
+            SessionState.SetString(typeof(ConnectShareEditorWindow).Name, EditorJsonUtility.ToJson(shareState));
+        }
     }
-
-
 }
-
-
