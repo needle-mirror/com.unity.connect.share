@@ -176,7 +176,12 @@ namespace Unity.Connect.Share.Editor
                     child: new Container(
                             padding: EdgeInsets.all(10),
                             decoration: new BoxDecoration(border: Border.all(color: new Color(0xFFCFCFCF))),
-                            child: new EditableText(_controller, _focusNode, new TextStyle(fontSize: 15f, height: 1.5f, fontWeight: FontWeight.w700), new Color(0xFF424242)))
+                            child: new EditableText(
+                                _controller, _focusNode,
+                                new TextStyle(fontSize: 15f, height: 1.5f, fontWeight: FontWeight.w700),
+                                strutStyle: null,
+                                new Color(0xFF424242))
+                            )
                    );
         }
 
