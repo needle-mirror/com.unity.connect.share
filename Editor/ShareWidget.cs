@@ -106,7 +106,7 @@ namespace Unity.Connect.Share.Editor
                             .Select(pkg => $"{pkg.name}@{pkg.version}")
                             // We probably don't have the package.json of the used Microgame available
                             // so add the information manually.
-                            .Concat(new [] { $"{Application.companyName}@{Application.version}" })
+                            .Concat(new [] { $"{PackageManagerProxy.GetApplicationIdentifier()}@{Application.version}" })
                             .Distinct()
                             .ToList()
                             .ForEach(depStr => sw.WriteLine(depStr));

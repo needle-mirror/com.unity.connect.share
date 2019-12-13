@@ -4,9 +4,15 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2019-12-13
+### Changed
+- Upload metadata: use `applicationIdentifier` in `ProjectSettings.asset` for retrieving the Microgames's name.
+### Fixed
+- Upload metadata: fix obtaining the project's dependency packages for Unity 2019.2 and newer.
+
 ## [1.0.8] - 2019-12-10
 ### Changed
-- Use `Application.companyName` (instead of `identifier`) for retrieving the project's name for upload metadata.
+- Use `Application.companyName` (instead of `identifier`) for retrieving the Microgames's name for upload metadata.
 
 ## [1.0.7] - 2019-11-28
 ### Changed
