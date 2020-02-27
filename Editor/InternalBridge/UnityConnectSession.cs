@@ -22,4 +22,10 @@ public class UnityConnectSession {
     public void ShowLogin() {
         UnityConnect.instance.ShowLogin();
     }
+
+    // NOTE no-op if user is not logged in
+    public static void OpenAuthorizedURLInWebBrowser(string url) =>
+        UnityConnect.instance.OpenAuthorizedURLInWebBrowser(url);
+
+    public static bool loggedIn => UnityConnect.instance.loggedIn;
 }

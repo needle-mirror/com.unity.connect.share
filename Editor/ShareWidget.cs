@@ -358,7 +358,13 @@ namespace Unity.Connect.Share.Editor
                             margin: EdgeInsets.only(top: 20),
                             child: new Text(url, style: new TextStyle(height: 1.2f, fontSize: 15f, color: new Color(0xFF2196F3), fontWeight: FontWeight.w700))
                         ), 
-                onTap: () => { Application.OpenURL(url);}
+                onTap: () =>
+                {
+                    if (UnityConnectSession.loggedIn)
+                        UnityConnectSession.OpenAuthorizedURLInWebBrowser(url);
+                    else
+                        Application.OpenURL(url);
+                }
            );
         }
         
@@ -522,6 +528,13 @@ namespace Unity.Connect.Share.Editor
                         alignment: Alignment.center
                     )
                 };
+
+            // Open the shared game automatically in the web browser.
+            if (UnityConnectSession.loggedIn)
+                UnityConnectSession.OpenAuthorizedURLInWebBrowser(widget.shareState.url);
+            else
+                Application.OpenURL(widget.shareState.url);
+
             return new Container(
                 color: new Color(0xFFF6F6F6),
                 padding: EdgeInsets.only(top: 10),
