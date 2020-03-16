@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEditorInternal;
 
 public static class PackageManagerProxy
@@ -14,12 +14,12 @@ public static class PackageManagerProxy
     }
 
     // As Application.identifier cannot be trusted (it can return empty on WebGL, for example)
-    // read the value directly from the ProjectSettings.
+    // Reads the value directly from the ProjectSettings. Returns null if value not set.
     // TODO Move to a dedicated class
     public static string GetApplicationIdentifier()
     {
         var projectSettings = InternalEditorUtility.LoadSerializedFileAndForget("ProjectSettings/ProjectSettings.asset");
         using(var so = new SerializedObject(projectSettings[0]))
-            return so.FindProperty("applicationIdentifier.Array.data[0].second").stringValue;
+            return so.FindProperty("applicationIdentifier.Array.data[0].second")?.stringValue;
     }
 }

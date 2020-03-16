@@ -1,8 +1,8 @@
 {
   "name": "com.unity.connect.share",
   "displayName": "Share WebGL Game",
-  "version": "1.0.10-preview",
-  "unity": "2018.4",
+  "version": "1.1.0-preview.1",
+  "unity": "2019.3",
   "description": "Use Share WebGL Game package to upload and share WebGL game on Unity Connect website.",
   "keywords": [
     "webgl",
@@ -13,9 +13,9 @@
     "com.unity.uiwidgets": "1.5.4-preview.8"
   },
   "repository": {
-    "footprint": "9be997c0095479963ecc6fa01aab977bb4636e1d",
+    "footprint": "f0a4ba00a9783eaf6e441137058775ce247874c6",
     "type": "git",
     "url": "https://github.cds.internal.unity3d.com/unity/com.unity.connect.share.git",
-    "revision": "68cdd72ca3a55da3b57a171f573b070e57c85765"
+    "revision": "42ba181a5749705c5e0ff3dd49fa3da2368735ed"
   }
 }

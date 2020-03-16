@@ -19,7 +19,7 @@ The user just needs to download Share WebGL Game using the package manager, buil
 ## Requirements
 
 #### Unity
-Install **Unity 2018.4** or newer. You can download the latest Unity from https://unity3d.com/get-unity/download.
+Install **Unity 2019.3** or newer. You can download the latest Unity from https://unity3d.com/get-unity/download.
 
 ## Limitations
 The zipped game build cannot exceed 100 MB.
