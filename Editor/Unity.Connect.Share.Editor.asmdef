@@ -1,11 +1,9 @@
 {
     "name": "Unity.Connect.Share.Editor",
     "references": [
-        "Unity.UIWidgets",
         "Unity.InternalAPIEditorBridgeDev.001",
-        "Unity.UIWidgets.Editor"
+        "Unity.EditorCoroutines.Editor"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -14,5 +12,7 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

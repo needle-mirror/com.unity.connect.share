@@ -1,29 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Connect;
-using UnityEngine;
+﻿using UnityEditor.Connect;
 
-public class UnityConnectSession {
-    
+public class UnityConnectSession
+{
     static UnityConnectSession _instance = new UnityConnectSession();
 
-    public static UnityConnectSession instance {
+    public static UnityConnectSession instance
+    {
         get => _instance;
     }
 
-    public string GetAccessToken() {
+    public string GetAccessToken()
+    {
         return UnityConnect.instance.GetAccessToken();
     }
 
-    public string GetEnvironment() {
+    public string GetEnvironment()
+    {
         return UnityConnect.instance.GetEnvironment();
     }
 
-    public void ShowLogin() {
+    public void ShowLogin()
+    {
         UnityConnect.instance.ShowLogin();
     }
 
-    // NOTE no-op if user is not logged in
+    /// <summary>
+    /// NOTE no-op if user is not logged in
+    /// </summary>
+    /// <param name="url"></param>
     public static void OpenAuthorizedURLInWebBrowser(string url) =>
         UnityConnect.instance.OpenAuthorizedURLInWebBrowser(url);
 

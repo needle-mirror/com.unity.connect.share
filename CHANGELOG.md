@@ -4,6 +4,22 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2020-03-19
+### Changed
+- Converted the package to use UIElements for the UI, dropping the UIWidgets dependency completely.
+### Added
+- The window reacts on the user's login and logout dynamically.
+- Build output directory is now remembered even if the window is closed or the project is restarted.
+Therefore, no new build is needed if the project is restarted without any changes.
+- "Finish" button to go from the Success state to the Upload state.
+- Editor Coroutines package as a dependency.
+### Fixed
+- All the states that have a thumbnail image now display the last valid thumbnail.
+- User is now redirected to the Login state if the user signs out and then switches to another state.
+- The name of the project is now remembered if you encounter an error while selecting the thumbnail.
+- The game title was not set in certain cases.
+- When the window is closed, the system stops checking if the user is logged in.
+
 ## [1.1.0] - 2020-03-16
 ### Changed
  - Raised the required Unity version to 2019.3.
