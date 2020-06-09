@@ -19,7 +19,8 @@ namespace Unity.Connect.Share.Editor
         readonly Dispatcher _dispatcher;
         readonly Reducer<State> _reducer;
 
-        public Store(Reducer<State> reducer, State initialState = default(State),
+        public Store(
+            Reducer<State> reducer, State initialState = default(State),
             params Middleware<State>[] middlewares)
         {
             this._reducer = reducer;
@@ -53,29 +54,6 @@ namespace Unity.Connect.Share.Editor
             }
 
             return action;
-        }
-    }
-    
-    public class StoreFactory
-    {
-        private static Store<AppState> _store;
-
-        static void SetupStore()
-        {
-            var shareState = new ShareState();
-            EditorJsonUtility.FromJsonOverwrite(SessionState.GetString(typeof(ConnectShareEditorWindow).Name, "{}"), shareState);
-            
-            _store = new Store<AppState>(ShareReducer.reducer, new AppState(shareState), ShareMiddleware.Create());
-        }
-        
-        public static Store<AppState> Get()
-        {
-            if (_store == null)
-            {
-                SetupStore();
-            }
-
-            return _store;
         }
     }
 }

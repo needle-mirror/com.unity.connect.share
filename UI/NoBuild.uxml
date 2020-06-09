@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="MainWindow" class="main-container main-container-light">
+        <Style src="Styles.uss" />
+        <ui:VisualElement name="imgLogo" class="status-icon status-icon-webgl-module" />
+        <ui:Label text="Create WebGL Build" name="lblTitle" class="progress-label" />
+        <ui:Label text="Start with creating a WebGL build of your project. Please note that the first build can take a long time and that the Editor is unresponsive while building. Consecutive builds will be faster." name="lblInstructions" class="info-text" />
+        <ui:Label text="If you already have an existing build you can find it by clicking the 'Locate Existing Build' button." name="lblInstructions" class="info-text" />
+    </ui:VisualElement>
+    <ui:Button text="Create WebGL Build" name="btnBuild" class="bottom-button bottom-button-blue">
+        <Style src="Styles.uss" />
+    </ui:Button>
+    <ui:Button text="Locate Existing Build" name="btnLocateExisting" class="bottom-button bottom-button-locate">
+        <Style src="Styles.uss" />
+    </ui:Button>
+</ui:UXML>

@@ -2,22 +2,12 @@ using System;
 
 namespace Unity.Connect.Share.Editor
 {
+    [Serializable]
     public class AppState
     {
-        public AppState(ShareState shareState = null)
-        {
-            this.shareState = shareState;
-        }
-
-        public readonly ShareState shareState;
-    }
-
-    [Serializable]
-    public class ShareState
-    {
-        public ShareState(string title = null, string buildOutputDir = null, string buildGUID = null,
-            string zipPath = null, ShareStep step = default, string errorMsg = null,
-            string key = null, string url = null)
+        public AppState(
+            string title = null, string buildOutputDir = null, string buildGUID = null, string zipPath = null,
+            ShareStep step = default, string errorMsg = null, string key = null, string url = null)
         {
             this.title = title;
             this.buildOutputDir = buildOutputDir;
@@ -29,11 +19,11 @@ namespace Unity.Connect.Share.Editor
             this.key = key;
         }
 
-        public ShareState CopyWith(string title = null, string buildOutputDir = null, string buildGUID = null, string zipPath = null,
-            ShareStep? step = default, string errorMsg = null, string key = null,
-            string url = null)
+        public AppState CopyWith(
+            string title = null, string buildOutputDir = null, string buildGUID = null, string zipPath = null,
+            ShareStep? step = default, string errorMsg = null, string key = null, string url = null)
         {
-            return new ShareState(
+            return new AppState(
                 title: title ?? this.title,
                 buildOutputDir: buildOutputDir ?? this.buildOutputDir,
                 buildGUID: buildGUID ?? this.buildGUID,
@@ -42,18 +32,17 @@ namespace Unity.Connect.Share.Editor
                 errorMsg: errorMsg ?? this.errorMsg,
                 key: key ?? this.key,
                 url: url ?? this.url
-                );
+            );
         }
 
-        // NOTE not readonly in order to work with JSON serialization
-        public /*readonly*/ string title;
-        public /*readonly*/ string buildOutputDir;
-        public /*readonly*/ string buildGUID;
-        public /*readonly*/ string zipPath;
-        public /*readonly*/ ShareStep step;
-        public /*readonly*/ string key;
-        public /*readonly*/ string errorMsg;
-        public /*readonly*/ string url;
+        public string title;
+        public string buildOutputDir;
+        public string buildGUID;
+        public string zipPath;
+        public ShareStep step;
+        public string key;
+        public string errorMsg;
+        public string url;
     }
 
     public enum ShareStep

@@ -18,7 +18,8 @@ namespace Unity.Connect.Share.Editor
         private const string thumbnail = "thumbnail.png";
         private const string uploadEndpoint = "/api/webgl/upload";
         private const string queryProgressEndpoint = "/api/webgl/progress";
-        private const int ZipFileLimitBytes = 100 * 1024 * 1024;
+        private const string UndefinedGUID = "UNDEFINED_GUID";
+        private const int ZipFileLimitBytes = 500 * 1024 * 1024;
 
         static EditorCoroutine waitUntilUserLogsInRoutine;
 
@@ -30,8 +31,8 @@ namespace Unity.Connect.Share.Editor
 
                 switch (action)
                 {
-                    case ShareStartAction shared: ZipAndShare(shared.title, store); break;
-                    case UploadStartAction upload: Upload(store); break;
+                    case ShareStartAction shared: ZipAndShare(shared.title, shared.buildPath, store); break;
+                    case UploadStartAction upload: Upload(store, upload.buildGUID); break;
                     case QueryProgressAction query: CheckProgress(store, query.key); break;
                     case StopUploadAction stopUpload: StopUploadAction(); break;
                     case NotLoginAction login: CheckLoginStatus(store); break;
@@ -40,19 +41,25 @@ namespace Unity.Connect.Share.Editor
             };
         }
 
-        private static void ZipAndShare(string title, Store<AppState> store)
+        private static void ZipAndShare(string title, string buildPath, Store<AppState> store)
         {
             store.Dispatch(new TitleChangeAction { title = title });
 
-            if (!SharePackageUtils.LastBuildIsValid())
+            if (!ShareUtils.BuildIsValid(buildPath))
             {
                 store.Dispatch(new OnErrorAction { errorMsg = "Please build project first!" });
                 return;
             }
 
-            string buildOutputDir = SharePackageUtils.GetBuildOutputDirectory(); 
-            if (!Zip(store, buildOutputDir)) { return; }
-            store.Dispatch(new UploadStartAction());
+            if (!Zip(store, buildPath)) { return; }
+            string GUIDPath = Path.Combine(buildPath, "GUID.txt");
+            if (File.Exists(GUIDPath))
+            {
+                store.Dispatch(new UploadStartAction() { buildGUID = File.ReadAllText(GUIDPath) });
+                return;
+            }
+            Debug.LogWarningFormat("Missing GUID file for {0}, consider deleting the build and making a new one through the WebGL Publisher", buildPath);
+            store.Dispatch(new UploadStartAction() { buildGUID = UndefinedGUID });
         }
 
         private static bool Zip(Store<AppState> store, string buildOutputDir)
@@ -62,35 +69,34 @@ namespace Unity.Connect.Share.Editor
 
             File.Delete(destPath);
 
-            CopyThumbnail(store);
+            CopyThumbnail(buildOutputDir, store);
 
             ZipFile.CreateFromDirectory(buildOutputDir, destPath);
             FileInfo fileInfo = new FileInfo(destPath);
 
             if (fileInfo.Length > ZipFileLimitBytes)
             {
-                store.Dispatch(new OnErrorAction { errorMsg = $"Max. allowed WebGL game .zip size is {SharePackageUtils.FormatBytes(ZipFileLimitBytes)}." });
+                store.Dispatch(new OnErrorAction { errorMsg = $"Max. allowed WebGL game .zip size is {ShareUtils.FormatBytes(ZipFileLimitBytes)}." });
                 return false;
             }
             store.Dispatch(new ZipPathChangeAction { zipPath = destPath });
             return true;
         }
 
-        private static void CopyThumbnail(Store<AppState> store)
+        private static void CopyThumbnail(string buildOutputDir, Store<AppState> store)
         {
-            var buildOutputDir = SharePackageUtils.GetBuildOutputDirectory();
-            var thumbnailDestPath = Path.Combine(buildOutputDir, thumbnail);
+            string thumbnailDestPath = Path.Combine(buildOutputDir, thumbnail);
 
             File.Delete(thumbnailDestPath);
 
-            string thumbnailDir = SharePackageUtils.GetThumbnailPath();
+            string thumbnailDir = ShareUtils.GetThumbnailPath();
 
-            if (string.IsNullOrEmpty(thumbnailDir)) { return; }
+            if (string.IsNullOrEmpty(thumbnailDir) || !File.Exists(thumbnailDir)) { return; }
 
             FileUtil.CopyFileOrDirectory(thumbnailDir, thumbnailDestPath);
         }
 
-        private static void Upload(Store<AppState> store)
+        private static void Upload(Store<AppState> store, string buildGUID)
         {
             var token = UnityConnectSession.instance.GetAccessToken();
             if (token.Length == 0)
@@ -99,12 +105,11 @@ namespace Unity.Connect.Share.Editor
                 return;
             }
 
-            var path = store.state.shareState.zipPath;
-            var title = string.IsNullOrEmpty(store.state.shareState.title) ? "Untitled" : store.state.shareState.title;
-            var buildGUID = SharePackageUtils.GetBuildGUID();
+            string path = store.state.zipPath;
+            string title = string.IsNullOrEmpty(store.state.title) ? ShareUtils.DefaultGameName : store.state.title;
 
-            var baseUrl = GetAPIBaseUrl();
-            var projectId = GetProjectId();
+            string baseUrl = GetAPIBaseUrl();
+            string projectId = GetProjectId();
             var formSections = new List<IMultipartFormSection>();
 
             formSections.Add(new MultipartFormDataSection("title", title));
@@ -132,7 +137,12 @@ namespace Unity.Connect.Share.Editor
 
             op.completed += operation =>
             {
+#if UNITY_2020
+                if ((uploadRequest.result == UnityWebRequest.Result.ConnectionError)
+                    || (uploadRequest.result == UnityWebRequest.Result.ProtocolError))
+#else
                 if (uploadRequest.isNetworkError || uploadRequest.isHttpError)
+#endif
                 {
                     if (uploadRequest.error != "Request aborted")
                     {
@@ -165,8 +175,9 @@ namespace Unity.Connect.Share.Editor
                 return;
             }
 
-            key = key ?? store.state.shareState.key;
-            var baseUrl = GetAPIBaseUrl();
+            key = key ?? store.state.key;
+            string baseUrl = GetAPIBaseUrl();
+
             var uploadRequest = UnityWebRequest.Get($"{baseUrl + queryProgressEndpoint}?key={key}");
             uploadRequest.SetRequestHeader("Authorization", $"Bearer {token}");
             uploadRequest.SetRequestHeader("X-Requested-With", "XMLHTTPREQUEST");
@@ -174,8 +185,14 @@ namespace Unity.Connect.Share.Editor
 
             op.completed += operation =>
             {
+#if UNITY_2020
+                if ((uploadRequest.result == UnityWebRequest.Result.ConnectionError)
+                    || (uploadRequest.result == UnityWebRequest.Result.ProtocolError))
+#else
                 if (uploadRequest.isNetworkError || uploadRequest.isHttpError)
+#endif
                 {
+                    AnalyticsHelper.UploadCompleted(UploadResult.Failed);
                     Debug.LogError(uploadRequest.error);
                     StopUploadAction();
                     return;
@@ -214,7 +231,7 @@ namespace Unity.Connect.Share.Editor
 
         private static IEnumerator UpdateProgress(Store<AppState> store, UnityWebRequest request)
         {
-            WaitForSeconds waitForSeconds = new WaitForSeconds(0.5f);
+            EditorWaitForSeconds waitForSeconds = new EditorWaitForSeconds(0.5f);
             while (true)
             {
                 if (request.isDone) { break; }
@@ -242,10 +259,10 @@ namespace Unity.Connect.Share.Editor
 
         private static IEnumerator WaitUntilUserLogsIn(float refreshDelay, Store<AppState> store)
         {
-            WaitForSeconds waitAmount = new WaitForSeconds(refreshDelay);
-            while (EditorWindow.HasOpenInstances<ConnectShareEditorWindow>())
+            EditorWaitForSeconds waitAmount = new EditorWaitForSeconds(refreshDelay);
+            while (EditorWindow.HasOpenInstances<ShareWindow>())
             {
-                yield return waitAmount; //Debug.LogError("Rechecking login in " + seconds);
+                yield return waitAmount; //Debug.LogError("Rechecking login in " + refreshDelay);
                 if (UnityConnectSession.instance.GetAccessToken().Length != 0)
                 {
                     store.Dispatch(new LoginAction()); //Debug.LogError("Connected!");
@@ -258,7 +275,7 @@ namespace Unity.Connect.Share.Editor
 
         private static IEnumerator RefreshProcessingProgress(float refreshDelay, Store<AppState> store)
         {
-            WaitForSeconds waitAmount = new WaitForSeconds(refreshDelay);
+            EditorWaitForSeconds waitAmount = new EditorWaitForSeconds(refreshDelay);
             yield return waitAmount;
             store.Dispatch(new QueryProgressAction());
         }

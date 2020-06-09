@@ -4,6 +4,51 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2020-06-09
+### Added
+- [Feature] Added support for Unity 2020
+- [Feature] A popup for changing build target is now displayed if the user tries to build a WebGL game while the project is using a different build target
+- [Feature] Before building and sharing, the package now detects if the WebGL module is installed, and asks the user to install it if it can't be found.
+- [Feature] The "Upload" tab has been improved: you can now manage up to 10 recent builds, of which information such as unity version, build date and size is displayed
+- [Feature] Added a button to delete a build (Upload tab)
+- [Feature] Added the possibility to remove a build from the list without deleting its the files (Upload tab)
+- [Feature] Added a button to share a specific build (Upload tab)
+- [Feature] Added a button to open a build's folder (Upload tab)
+- [Feature] The user can now locate an existing build through a dropdown menu in the Upload tab
+- [Feature] the Upload tab now provides a button that allows users to build the game again in a different location, preserving the old build
+- [Feature] Added an Introductive window for users that open the Share package for the first time of their project's lifetime
+- [Feature] You can now open the Build Settings window by clicking a button in the Upload tab
+- [Feature] If the user tries to build without any active scene added to build settings, the BuildSettings window opens for him.
+- [Feature] Clicking "Create a build" automatically opens the build dialog if the project settings (platform, scenes) are correct
+- [Feature] Added an "InstallWebGL" tab that tells the user how to install WebGL module if they don't have it
+- [Feature] The "NotLoggedIn" tab now automatically pops-up the login tab if the user presses "Login"
+- [Editor] One can now get the first-time instructions back by going to Edit > Preferences > My Settings > Publish WebGL Game > Show first-time instructions.
+
+### Changed
+- [UI] All tabs have been redesigned to improve clarity and user experience
+- [UI] Added light/dark editor theme support
+- [UI] Updated the link related to Installing WebGL
+- [UI] Update terminology from "Share" to "Publish"
+- [UI] Moved the menu item that opens the window from "Windows/Share WebGL" to "Publish/WebGL Project"
+
+- [Optimization] Hugely reduced the amount of requests sent for login, progress and upload checks
+- [Optimization] Reduced memory garbage
+
+- [Bugfix] Fixed game title being unset sometimes
+- [Bugfix] Fixed: Editor crashes when using "Auto switch + build" feature
+- [Bugfix] Fixed build not uploading in case of missing GUID
+- [Bugfix] Broken builds due to missing GUID.txt are now correctly recognized
+- [Bugfix] Fixed a bug where the Share process would break if the user manually deleted some core build files.
+- [Bugfix] Fixed: As soon as I try to add the third build, the oldest build is removed from the list even if the new build is invalid
+- [Bugfix] Non MicroGames projects now produce correct dependency file after build
+- [Bugfix] Fixed missing default thumbnail preventing sharing
+- [Bugfix] Fixed broken upload due to missing thumbnail file
+- [Bugfix] Fixed: It is possible to add the same build path several times using the "Locate Build" button (NEW-322)
+- [Bugfix] Fixed missing icon causing UI not loading in non-MG projects
+
+### Removed
+- [Removed] It is no more possible to setup the game's title and thumbnail in the upload tab
+
 ## [1.2.0] - 2020-03-19
 ### Changed
 - Converted the package to use UIElements for the UI, dropping the UIWidgets dependency completely.

@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEditor.Modules;
 
 namespace Unity.Connect.Share.Editor

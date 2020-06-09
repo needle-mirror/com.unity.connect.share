@@ -1,8 +1,9 @@
 {
     "name": "Unity.Connect.Share.Editor",
     "references": [
-        "Unity.InternalAPIEditorBridgeDev.001",
-        "Unity.EditorCoroutines.Editor"
+        "Unity.EditorCoroutines.Editor",
+        "Unity.Settings.Editor",
+        "Unity.InternalAPIEditorBridgeDev.001"
     ],
     "includePlatforms": [
         "Editor"

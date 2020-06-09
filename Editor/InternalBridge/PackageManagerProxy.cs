@@ -30,7 +30,7 @@ namespace Unity.Connect.Share.Editor
         public static string GetApplicationIdentifier()
         {
             var projectSettings = InternalEditorUtility.LoadSerializedFileAndForget("ProjectSettings/ProjectSettings.asset");
-            using(var so = new SerializedObject(projectSettings[0]))
+            using (var so = new SerializedObject(projectSettings[0]))
                 return so.FindProperty("applicationIdentifier.Array.data[0].second")?.stringValue;
         }
     }
