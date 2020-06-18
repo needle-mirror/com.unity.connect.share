@@ -68,7 +68,8 @@
 }
 
 .connect-link {
-    color: rgb(51, 122, 212);
+    color: rgb(61, 119, 194);
+    -unity-font-style: bold;
     margin-left: 14px;
     margin-right: 14px;
     white-space: normal;
@@ -93,16 +94,7 @@
 }
 
 .bottom-button-blue {
-    background-color: rgb(33, 150, 243);
-    color: rgb(255, 255, 255);
-    border-left-color: rgba(0, 0, 0, 0.1);
-    border-right-color: rgba(0, 0, 0, 0.1);
-    border-top-color: rgba(0, 0, 0, 0.1);
-    border-bottom-color: rgba(0, 0, 0, 0.2);
-}
-
-.bottom-button-blue:hover {
-    background-color: rgb(11, 131, 228);
+    -unity-font-style: bold;
 }
 
 .build-container {
@@ -141,6 +133,7 @@
 .build-date {
     margin-top: 3px;
     opacity: 0.7;
+    white-space: normal;
 }
 
 .build-folder-button {
@@ -196,20 +189,10 @@
     margin-bottom: 10px;
     margin-top: 0;
     margin-right: 10px;
-    background-color: rgb(33, 150, 243);
-    color: rgb(255, 255, 255);
     border-left-width: 1px;
     border-right-width: 1px;
     border-top-width: 1px;
     border-bottom-width: 1px;
-    border-bottom-color: rgba(0, 0, 0, 0.2);
-    border-left-color: rgba(0, 0, 0, 0.1);
-    border-right-color: rgba(0, 0, 0, 0.1);
-    border-top-color: rgba(0, 0, 0, 0.1);
-}
-
-.build-share-button:hover {
-    background-color: rgb(11, 131, 228);
 }
 
 .upload-main-container {

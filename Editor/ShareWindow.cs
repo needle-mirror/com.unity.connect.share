@@ -148,6 +148,7 @@ namespace Unity.Connect.Share.Editor
 
             if (!webGLIsInstalled)
             {
+                UpdateWebGLInstalledFlag();
                 LoadTab(TAB_INSTALL_WEBGL);
                 return;
             }
@@ -186,7 +187,7 @@ namespace Unity.Connect.Share.Editor
             currentShareStep = Store.state.step;
             currentTab = string.Empty;
             previousTab = string.Empty;
-            webGLIsInstalled = BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL);
+            UpdateWebGLInstalledFlag();
 
             tabFrontendSetupMethods = new Dictionary<string, Action>
             {
@@ -418,7 +419,7 @@ namespace Unity.Connect.Share.Editor
             AnalyticsHelper.ButtonClicked(string.Format("{0}_Publish", currentTab));
             if (!ShareUtils.BuildIsValid(gameBuildPath))
             {
-                Store.Dispatch(new OnErrorAction() { errorMsg = "This build is corrupted or missing, please delete it and choose another one to share" });
+                Store.Dispatch(new OnErrorAction() { errorMsg = "This build is corrupted or missing, please delete it and choose another one to publish" });
                 return;
             }
 
@@ -481,7 +482,7 @@ namespace Unity.Connect.Share.Editor
                 string gameTitle = buildPath.Split('/').Last();
                 SetupButton("btnOpenFolder", () => OnOpenBuildFolderClicked(buildPath), true, container, "Reveal Build Folder");
                 SetupButton("btnDelete", () => OnDeleteClicked(buildPath, gameTitle), true, container, "Delete Build");
-                SetupButton("btnShare", () => OnShareClicked(buildPath), true, container, "Share WebGL Build to Unity Connect");
+                SetupButton("btnShare", () => OnShareClicked(buildPath), true, container, "Publish WebGL Build to Unity Connect");
                 SetupLabel("lblLastBuildInfo", string.Format("Created: {0} with Unity {1}", File.GetLastWriteTime(buildPath), ShareUtils.GetUnityVersionOfBuild(buildPath)), container);
                 SetupLabel("lblGameTitle", gameTitle, container);
                 SetupLabel("lblBuildSize", string.Format("Build Size: {0}", ShareUtils.FormatBytes(ShareUtils.GetSizeFolderSize(buildPath))), container);
@@ -610,6 +611,11 @@ namespace Unity.Connect.Share.Editor
             if (!ShareBuildProcessor.OpenBuildGameDialog(BuildTarget.WebGL)) { return; }
             if (currentTab != TAB_UPLOAD) { return; }
             SetupUploadTab();
+        }
+
+        void UpdateWebGLInstalledFlag()
+        {
+            webGLIsInstalled = BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL);
         }
     }
 }

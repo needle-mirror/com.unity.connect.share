@@ -1,20 +1,19 @@
-# Share WebGL Game
+# WebGL Publisher
 
 ## Introduction
-Share WebGL Game is a package for Unity Editor, enabling developers to upload their WebGL games to Unity Connect.
-The shared games can be played and commented by anyone knowing the link to the shared game.
+WebGL Publisher is a package for Unity Editor, enabling developers to upload their WebGL projects to Unity Connect.
+The shared projects can be played and commented by anyone knowing the link to the shared project.
 
 #### Developer-Friendly
-The user just needs to download Share WebGL Game using the package manager, build their game for WebGL, and upload the game to Unity Connect by following our instructions.
-
+The user just needs to download WebGL Publisher using the package manager, build their project for WebGL, and upload the project to Unity Connect by following our instructions.
 
 ### Instructions
-- Install Share WebGL Game using the Package Manager.
-- Click menu on the top of editor (_Window > Share Webgl Game_).
+- Install WebGL Publisher using the Package Manager.
+- Click menu on the top of editor (_Publish > WebGL Project_).
 - If you are not logged in, you will be instructed to do so.
-- If you have not built the game yet, you will be instructed to do so.
-- You are asked to update the game title and thumbnail.
-- You can now upload your project to Unity Connect and after. You will get a game link after a successful upload.
+- If you have not built the project yet, you will be instructed to do so.
+- You can now upload your project to Unity Connect. if the upload succeeds, you will get a link to a page where you can edit the name and description of your project before finally publishing it.
+- You can then share the link of your published project so everybody can play the build.
 
 ## Requirements
 
@@ -22,4 +21,4 @@ The user just needs to download Share WebGL Game using the package manager, buil
 Install **Unity 2019.3** or newer. You can download the latest Unity from https://unity3d.com/get-unity/download.
 
 ## Limitations
-The zipped game build cannot exceed 100 MB.
+The zipped project build cannot exceed 500 MB.
