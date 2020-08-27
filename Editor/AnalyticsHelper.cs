@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -15,7 +13,7 @@ namespace Unity.Connect.Share.Editor
         Succeeded
     }
 
-    class AnalyticsHelper : ScriptableObject, ISerializationCallbackReceiver
+    class AnalyticsHelper : ScriptableObject
     {
         const int MaxEventsPerHour = 1000;
         const int MaxNumberOfElements = 1000;
@@ -40,12 +38,6 @@ namespace Unity.Connect.Share.Editor
         DateTime lastBuildStartTime;
         DateTime lastUploadStartTime;
 
-        [SerializeField]
-        long currentBuildStartTicks;
-
-        [SerializeField]
-        long lastUploadStartTicks;
-
         public static AnalyticsHelper Instance
         {
             get
@@ -67,18 +59,6 @@ namespace Unity.Connect.Share.Editor
             }
         }
         static AnalyticsHelper s_Instance;
-
-        public void OnBeforeSerialize()
-        {
-            currentBuildStartTicks = lastBuildStartTime.Ticks;
-            lastUploadStartTicks = lastUploadStartTime.Ticks;
-        }
-
-        public void OnAfterDeserialize()
-        {
-            lastBuildStartTime = new DateTime(currentBuildStartTicks, DateTimeKind.Utc);
-            lastUploadStartTime = new DateTime(lastUploadStartTicks, DateTimeKind.Utc);
-        }
 
         static void DebugWarning(string message, params object[] args)
         {
@@ -183,7 +163,7 @@ namespace Unity.Connect.Share.Editor
             {
                 ts = DateTime.UtcNow.Millisecond,
                 id = projectID,
-                duration = duration.Milliseconds,
+                duration = (int)duration.TotalSeconds,
                 result = (int)result
             };
             return SendEvent(EventBuildCompleted, data);
@@ -210,7 +190,7 @@ namespace Unity.Connect.Share.Editor
             {
                 ts = DateTime.UtcNow.Millisecond,
                 id = projectID,
-                duration = duration.Milliseconds,
+                duration = (int)duration.TotalSeconds,
                 result = (int)result
             };
             return SendEvent(EventUploadCompleted, data);

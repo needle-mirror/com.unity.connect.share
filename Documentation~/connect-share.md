@@ -17,7 +17,7 @@ To add this package your project, go to _Window_ > _Package Manager_ and install
 
 ## Requirements
 
-This version of Share WebGL Game is compatible with the following versions of the Unity Editor:
+This version of WebGL Publisher is compatible with the following versions of the Unity Editor:
 
 * 2019.3 and later
 

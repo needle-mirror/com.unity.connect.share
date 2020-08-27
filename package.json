@@ -1,7 +1,7 @@
 {
   "name": "com.unity.connect.share",
   "displayName": "WebGL Publisher",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "unity": "2019.3",
   "description": "This tool allows you to make a WebGL build of your current project and upload it to Unity’s website, where it can be shared with others.",
   "keywords": [
@@ -14,11 +14,11 @@
     "com.unity.settings-manager": "1.0.2"
   },
   "upmCi": {
-    "footprint": "a339982e9d51037c3cf5bdb4d32411f15b58e8b2"
+    "footprint": "8668405af3d7f5b9b25b0b1e878a46af1656c37e"
   },
   "repository": {
     "url": "https://github.cds.internal.unity3d.com/unity/com.unity.connect.share.git",
     "type": "git",
-    "revision": "2aeee100bc751b43b49c211a8bb48e9c923d3d02"
+    "revision": "e6e3498e1b4660a6e017aa518a6d50f03af46960"
   }
 }
