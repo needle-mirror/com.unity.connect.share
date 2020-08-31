@@ -434,22 +434,11 @@ namespace Unity.Connect.Share.Editor
                 return;
             }
 
-            switch (ShowDeleteBuildPopup(gameTitle))
+            if (ShowDeleteBuildPopup(gameTitle))
             {
-                case 0: // Yes
-                    AnalyticsHelper.ButtonClicked(string.Format("{0}_Delete_RemoveFromList", currentTab));
-                    ShareUtils.RemoveBuildDirectory(buildPath);
-                    SetupUploadTab();
-                    break;
-
-                case 1: break; // Cancel
-
-                case 2: // Yes and delete
-                    AnalyticsHelper.ButtonClicked(string.Format("{0}_Delete_RemoveBuildFiles", currentTab));
-                    ShareUtils.RemoveBuildDirectory(buildPath);
-                    Directory.Delete(buildPath, true);
-                    SetupUploadTab();
-                    break;
+                AnalyticsHelper.ButtonClicked(string.Format("{0}_Delete_RemoveFromList", currentTab));
+                ShareUtils.RemoveBuildDirectory(buildPath);
+                SetupUploadTab();
             }
         }
 
@@ -579,15 +568,14 @@ namespace Unity.Connect.Share.Editor
             return yesButtonClicked;
         }
 
-        static int ShowDeleteBuildPopup(string gameTitle)
+        static bool ShowDeleteBuildPopup(string gameTitle)
         {
-            string title = "Remove Build";
-            string message = string.Format("Do you just want to remove \"{0}\" from the list or also delete all the build files?", gameTitle);
+            string title = "Remove Build from List";
+            string message = string.Format("Do you want to remove \"{0}\" from the list?", gameTitle);
             string yesButtonText = "Remove from List";
-            string yesAndDeleteButtonText = "Delete Build Files";
             string noButtonText = "Cancel";
 
-            return EditorUtility.DisplayDialogComplex(title, message, yesButtonText, noButtonText, yesAndDeleteButtonText);
+            return EditorUtility.DisplayDialog(title, message, yesButtonText, noButtonText);
         }
 
         static void RemoveStyleSheet(StyleSheet styleSheet, VisualElement target)

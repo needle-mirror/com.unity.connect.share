@@ -4,6 +4,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.6] - 2020-08-31
+### Changed
+- [UI] Removed the option to delete a build folder from disk, to prevent users from accidentally delete system-critical folders
+- [Project] Updated LICENSE
+
+
 ## [2.0.5] - 2020-08-27
 ### Fixed
 - [Bugfix] Fixed wrong analytics data being sent for build and upload times
