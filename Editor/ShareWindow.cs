@@ -11,18 +11,53 @@ using UnityEngine.UIElements;
 namespace Unity.Connect.Share.Editor
 {
     /// <summary>
-    /// An Editor window that allows the user to share a WebGL build of the game to Unity Connect
+    /// An Editor window that allows the user to share a WebGL build of the project to Unity Connect
     /// </summary>
     public class ShareWindow : EditorWindow
     {
+        /// <summary>
+        /// Name of the tab displayed to a first time user
+        /// </summary>
         public const string TAB_INTRODUCTION = "Introduction";
+
+        /// <summary>
+        /// Name of the tab dsplayed when the user is not logged in
+        /// </summary>
         public const string TAB_NOT_LOGGED_IN = "NotLoggedIn";
+
+        /// <summary>
+        /// Name of the tab displayed when WebGL module is not installed
+        /// </summary>
         public const string TAB_INSTALL_WEBGL = "InstallWebGl";
+
+        /// <summary>
+        /// Name of the tab displayed when no build is available
+        /// </summary>
         public const string TAB_NO_BUILD = "NoBuild";
+
+        /// <summary>
+        /// Name of the tab displayed when a build is successfully published
+        /// </summary>
         public const string TAB_SUCCESS = "Success";
+
+        /// <summary>
+        /// Name of the tab displayed when an error occurs
+        /// </summary>
         public const string TAB_ERROR = "Error";
+
+        /// <summary>
+        /// Name of the tab displayed while uploading a build
+        /// </summary>
         public const string TAB_UPLOADING = "Uploading";
+
+        /// <summary>
+        /// Name of the tab displayed while processing a build
+        /// </summary>
         public const string TAB_PROCESSING = "Processing";
+
+        /// <summary>
+        /// Name of the tab from which builds can be uploaded
+        /// </summary>
         public const string TAB_UPLOAD = "Upload";
 
         /// <summary>
@@ -31,6 +66,20 @@ namespace Unity.Connect.Share.Editor
         /// <returns></returns>
         public static ShareWindow FindInstance() => Resources.FindObjectsOfTypeAll<ShareWindow>().FirstOrDefault();
 
+        /// <summary>
+        /// Holds all the Fronted setup methods of the available tabs
+        /// </summary>
+        static Dictionary<string, Action> tabFrontendSetupMethods;
+
+        [UserSetting("Publish WebGL Game", "Show first-time instructions")]
+        static UserSetting<bool> openedForTheFirstTime = new UserSetting<bool>(ShareSettingsManager.instance, "firstTime", true, SettingsScope.Project);
+
+        [UserSetting("Publish WebGL Game", "Auto-publish after build is completed")]
+        static UserSetting<bool> autoPublishSuccessfulBuilds = new UserSetting<bool>(ShareSettingsManager.instance, "autoPublish", true, SettingsScope.Project);
+
+        /// <summary>
+        /// A representation of the AppState
+        /// </summary>
         public Store<AppState> Store
         {
             get
@@ -45,10 +94,8 @@ namespace Unity.Connect.Share.Editor
         Store<AppState> m_Store;
 
         /// <summary>
-        /// Holds all the Fronted setup methods of the available tabs
+        /// The active tab in the UI
         /// </summary>
-        static Dictionary<string, Action> tabFrontendSetupMethods;
-
         public string currentTab { get; private set; }
 
         ShareStep currentShareStep;
@@ -57,9 +104,10 @@ namespace Unity.Connect.Share.Editor
         bool webGLIsInstalled;
         StyleSheet lastCommonStyleSheet; // Dark/Light theme
 
-        [UserSetting("Publish WebGL Game", "Show first-time instructions")]
-        static UserSetting<bool> openedForTheFirstTime = new UserSetting<bool>(ShareSettingsManager.instance, "firstTime", true, SettingsScope.Project);
-
+        /// <summary>
+        /// Opens the Publisher's window
+        /// </summary>
+        /// <returns></returns>
         [MenuItem("Publish/WebGL Project")]
         public static ShareWindow OpenShareWindow()
         {
@@ -128,7 +176,7 @@ namespace Unity.Connect.Share.Editor
                 return;
             }
 
-            if (openedForTheFirstTime.value)
+            if (openedForTheFirstTime)
             {
                 LoadTab(TAB_INTRODUCTION);
                 return;
@@ -259,7 +307,9 @@ namespace Unity.Connect.Share.Editor
 
         void SetupNoBuildTab()
         {
-            SetupButton("btnBuild", OnCreateABuildClicked, true);
+            string buildButtonText = autoPublishSuccessfulBuilds ? "Build and Publish" : "Create WebGL Build";
+            string buildButtonTooltip = autoPublishSuccessfulBuilds ? "Create WebGL Build and Publish to Unity Website" : "Create New WebGL Build";
+            SetupButton("btnBuild", OnCreateABuildClicked, true, newText: buildButtonText, tooltip: buildButtonTooltip);
             SetupButton("btnLocateExisting", OnLocateBuildClicked, true);
         }
 
@@ -290,6 +340,11 @@ namespace Unity.Connect.Share.Editor
             SetupButton("btnCancel", OnCancelUploadClicked, true);
         }
 
+        /// <summary>
+        /// Loads a VisualTreeAsset from an UXML file
+        /// </summary>
+        /// <param name="name">name of the file in the UI folder of the package</param>
+        /// <returns>The VisualTreeAsset representing the content of the file</returns>
         public static VisualTreeAsset LoadUXML(string name) { return AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(string.Format("Packages/com.unity.connect.share/UI/{0}.uxml", name)); }
 
         void SetupUploadTab()
@@ -308,12 +363,13 @@ namespace Unity.Connect.Share.Editor
                 buildsList.contentContainer.Add(containerInstance);
             }
 
-            SetupButton("btnNewBuild", OnCreateABuildClicked, true);
+            SetupBuildButtonInUploadTab();
 
             ToolbarMenu helpMenu = rootVisualElement.Q<ToolbarMenu>("menuHelp");
             helpMenu.menu.AppendAction("Open Build Settings...", a => { OnOpenBuildSettingsClicked(); }, a => DropdownMenuAction.Status.Normal);
             helpMenu.menu.AppendAction("Locate Build...", a => { OnLocateBuildClicked(); }, a => DropdownMenuAction.Status.Normal);
             helpMenu.menu.AppendAction("WebGL Build Tutorial", a => { OnOpenHelpClicked(); }, a => DropdownMenuAction.Status.Normal);
+            helpMenu.menu.AppendAction("Auto-publish after build is completed", a => { OnToggleAutoPublish(); }, a => { return GetAutoPublishCheckboxStatus(); }, autoPublishSuccessfulBuilds.value);
 
             //hide the dropdown arrow
             IEnumerator<VisualElement> helpMenuChildrenEnumerator = helpMenu.Children().GetEnumerator();
@@ -322,12 +378,24 @@ namespace Unity.Connect.Share.Editor
             helpMenuChildrenEnumerator.Current.visible = false;
         }
 
+        DropdownMenuAction.Status GetAutoPublishCheckboxStatus()
+        {
+            return autoPublishSuccessfulBuilds ? DropdownMenuAction.Status.Checked
+                                               : DropdownMenuAction.Status.Normal;
+        }
+
         void UpdateHeader()
         {
             gameTitle = ShareUtils.GetFilteredGameTitle(gameTitle);
             SetupLabel("lblProjectName", gameTitle, rootVisualElement, new ShareUtils.LeftClickManipulator(OnProjectLinkClicked));
             SetupLabel("lblUserEmail", string.Format("By {0}", CloudProjectSettings.userName));
             SetupImage("imgThumbnail", ShareUtils.GetThumbnailPath());
+        }
+
+        void SetupBuildButtonInUploadTab()
+        {
+            string buildButtonText = autoPublishSuccessfulBuilds ? "Create And Publish New Build" : "Create New Build";
+            SetupButton("btnNewBuild", OnCreateABuildClicked, true, newText: buildButtonText);
         }
 
         #endregion
@@ -363,11 +431,28 @@ namespace Unity.Connect.Share.Editor
             Application.OpenURL("https://learn.unity.com/tutorial/fps-mod-share-your-game-on-the-web?projectId=5d9c91a4edbc2a03209169ab#5db306f5edbc2a001f7a307d");
         }
 
+        void OnToggleAutoPublish()
+        {
+            AnalyticsHelper.ButtonClicked(string.Format("{0}_ToggleAutoPublish", currentTab));
+            autoPublishSuccessfulBuilds.SetValue(!autoPublishSuccessfulBuilds);
+            SetupBuildButtonInUploadTab();
+        }
+
         void OnLocateBuildClicked()
         {
             AnalyticsHelper.ButtonClicked(string.Format("{0}_LocateBuild", currentTab));
-            string previousBuildPath = ShareUtils.GetFirstValidBuildPath();
-            string buildPath = EditorUtility.OpenFolderPanel("Choose folder", string.IsNullOrEmpty(previousBuildPath) ? Application.persistentDataPath : previousBuildPath, string.Empty);
+
+            string lastBuildPath = ShareUtils.GetFirstValidBuildPath();
+            if (string.IsNullOrEmpty(lastBuildPath) && ShareBuildProcessor.CreateDefaultBuildsFolder)
+            {
+                lastBuildPath = ShareBuildProcessor.DefaultBuildsFolderPath;
+                if (!Directory.Exists(lastBuildPath))
+                {
+                    Directory.CreateDirectory(lastBuildPath);
+                }
+            }
+
+            string buildPath = EditorUtility.OpenFolderPanel("Choose folder", lastBuildPath, string.Empty);
             if (string.IsNullOrEmpty(buildPath)) { return; }
             if (!ShareUtils.BuildIsValid(buildPath))
             {
@@ -460,6 +545,12 @@ namespace Unity.Connect.Share.Editor
             SetupLabel("lblProgress", string.Format("Processing ({0}%)...", percentage));
         }
 
+        internal void OnBuildCompleted()
+        {
+            if (currentTab != TAB_UPLOAD) { return; }
+            SetupUploadTab();
+        }
+
         #endregion
 
         #region UI Setup Helpers
@@ -487,12 +578,16 @@ namespace Unity.Connect.Share.Editor
             container.style.display = DisplayStyle.None;
         }
 
-        void SetupButton(string buttonName, Action onClickAction, bool isEnabled, VisualElement parent = null, string tooltip = "")
+        void SetupButton(string buttonName, Action onClickAction, bool isEnabled, VisualElement parent = null, string tooltip = "", string newText = "")
         {
             parent = parent ?? rootVisualElement;
             Button button = parent.Query<Button>(buttonName);
             button.SetEnabled(isEnabled);
             button.clickable = new Clickable(() => onClickAction.Invoke());
+            if (newText != string.Empty)
+            {
+                button.text = newText;
+            }
             button.tooltip = string.IsNullOrEmpty(tooltip) ? button.text : tooltip;
         }
 
@@ -587,6 +682,9 @@ namespace Unity.Connect.Share.Editor
 
         #endregion
 
+        /// <summary>
+        /// Called when the WebGL target platform is already selected or when the user switches to it through the Publisher
+        /// </summary>
         public void OnWebGLBuildTargetSet()
         {
             bool buildSettingsHaveNoActiveScenes = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes).Length == 0;
@@ -596,7 +694,14 @@ namespace Unity.Connect.Share.Editor
                 return;
             }
 
-            if (!ShareBuildProcessor.OpenBuildGameDialog(BuildTarget.WebGL)) { return; }
+            (bool buildSucceeded, string buildPath) = ShareBuildProcessor.OpenBuildGameDialog(BuildTarget.WebGL);
+            if (!buildSucceeded) { return; }
+
+            if (autoPublishSuccessfulBuilds)
+            {
+                OnShareClicked(buildPath);
+            }
+
             if (currentTab != TAB_UPLOAD) { return; }
             SetupUploadTab();
         }

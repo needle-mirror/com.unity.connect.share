@@ -6,15 +6,36 @@ using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEditor.SettingsManagement;
 using UnityEngine;
 
 namespace Unity.Connect.Share.Editor
 {
     class ShareBuildProcessor : IPostprocessBuildWithReport, IPreprocessBuildWithReport
     {
+        const string DEFAULT_BUILDS_FOLDER = "WebGL Builds";
+
+        /// <summary>
+        /// Path to the folder proposed as the default location for builds
+        /// </summary>
+        public static readonly string DefaultBuildsFolderPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, ShareBuildProcessor.DEFAULT_BUILDS_FOLDER);
+
+        /// <summary>
+        /// Should a default folder be created and proposed for builds?
+        /// </summary>
+        [UserSetting("Publish WebGL Game", "Create default build folder", "When enabled, a folder named '" + DEFAULT_BUILDS_FOLDER + "' will be created next to the Assets folder and used as the proposed location for new builds")]
+        public static UserSetting<bool> CreateDefaultBuildsFolder = new UserSetting<bool>(ShareSettingsManager.instance, "createDefaultBuildsFolder", true, SettingsScope.Project);
+
         static bool buildStartedFromTool = false;
+        /// <summary>
+        /// The order in which the PostProcess and PreProcess builds are processed
+        /// </summary>
         public int callbackOrder { get { return 0; } }
 
+        /// <summary>
+        /// Called right after a build process ends
+        /// </summary>
+        /// <param name="report">A summary of the build process</param>
         public void OnPostprocessBuild(BuildReport report)
         {
             BuildSummary summary = report.summary;
@@ -25,13 +46,15 @@ namespace Unity.Connect.Share.Editor
 
             ShareUtils.AddBuildDirectory(buildOutputDir);
 
-            ShareWindow.FindInstance()?.Store.Dispatch(new BuildFinishAction
+            ShareWindow windowInstance = ShareWindow.FindInstance();
+            windowInstance?.Store.Dispatch(new BuildFinishAction
             {
                 outputDir = buildOutputDir,
                 buildGUID = buildGUID
             });
 
             WriteMetadataFile(summary.outputPath, buildGUID);
+            windowInstance?.OnBuildCompleted();
         }
 
         IEnumerator WaitUntilBuildFinishes(BuildReport report)
@@ -97,13 +120,25 @@ namespace Unity.Connect.Share.Editor
         /// <summary>
         /// Triggers the "Build Game" dialog
         /// </summary>
-        /// <returns>true if everything goes well and the build is done, false otherwise</returns>
-        public static bool OpenBuildGameDialog(BuildTarget activeBuildTarget)
+        /// <returns>True and the build path if everything goes well and the build is done, false and empty string otherwise.</returns>
+        public static (bool, string) OpenBuildGameDialog(BuildTarget activeBuildTarget)
         {
+            string path = string.Empty;
             try
             {
-                string path = EditorUtility.SaveFolderPanel("Choose Location of Built Application", "Builds", "");
-                if (string.IsNullOrEmpty(path)) { return false; }
+                string defaultOutputDirectory = ShareUtils.GetFirstValidBuildPath();
+                if (string.IsNullOrEmpty(defaultOutputDirectory) && CreateDefaultBuildsFolder)
+                {
+                    defaultOutputDirectory = DefaultBuildsFolderPath;
+                    if (!Directory.Exists(defaultOutputDirectory))
+                    {
+                        Directory.CreateDirectory(defaultOutputDirectory);
+                    }
+                }
+
+                path = EditorUtility.SaveFolderPanel("Choose Folder for New WebGL Build", defaultOutputDirectory, "");
+
+                if (string.IsNullOrEmpty(path)) { return (false, string.Empty); }
 
                 BuildPlayerOptions buildOptions = new BuildPlayerOptions();
                 buildOptions.scenes = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes);
@@ -112,8 +147,8 @@ namespace Unity.Connect.Share.Editor
                 buildOptions.targetGroup = BuildPipeline.GetBuildTargetGroup(activeBuildTarget);
                 buildOptions.target = activeBuildTarget;
 
-                buildStartedFromTool = true; //Debug.Log("building " + buildOptions.locationPathName);
-                BuildReport report = BuildPipeline.BuildPlayer(buildOptions); //Debug.LogError("OnPostprocessBuild custom");
+                buildStartedFromTool = true;
+                BuildReport report = BuildPipeline.BuildPlayer(buildOptions);
                 buildStartedFromTool = false;
 
                 AnalyticsHelper.BuildCompleted(report.summary.result, report.summary.totalTime);
@@ -121,7 +156,7 @@ namespace Unity.Connect.Share.Editor
                 {
                     case BuildResult.Cancelled: //Debug.LogWarning("[Version and Build] Build cancelled! " + report.summary.totalTime);
                     case BuildResult.Failed: //Debug.LogError("[Version and Build] Build failed! " + report.summary.totalTime);
-                        return false;
+                        return (false, string.Empty);
 
                     case BuildResult.Succeeded: //Debug.Log("[Version and Build] Build succeeded! " + report.summary.totalTime);
                     case BuildResult.Unknown: //Debug.Log("[Version and Build] Unknown build result! " + report.summary.totalTime);
@@ -131,11 +166,15 @@ namespace Unity.Connect.Share.Editor
             catch (BuildPlayerWindow.BuildMethodException /*e*/)
             {
                 //Debug.LogError(e.Message);
-                return false;
+                return (false, string.Empty);
             }
-            return true;
+            return (true, path);
         }
 
+        /// <summary>
+        /// Called right before the build process starts
+        /// </summary>
+        /// <param name="report">A summary of the build process</param>
         public void OnPreprocessBuild(BuildReport report)
         {
             if (report.summary.platform != BuildTarget.WebGL) { return; }

@@ -14,9 +14,9 @@ namespace Unity.Connect.Share.Editor
     public static class ShareUtils
     {
         public const int MAX_DISPLAYED_BUILDS = 10;
-        const string PROJECT_VERSION_REGEX = "^\\d{4}\\.\\d{1}\\Z";
-
         public const string DefaultGameName = "Untitled";
+
+        const string PROJECT_VERSION_REGEX = "^\\d{4}\\.\\d{1}\\Z";
 
         public static List<string> GetAllBuildsDirectories()
         {

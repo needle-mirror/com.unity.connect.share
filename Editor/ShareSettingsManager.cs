@@ -21,7 +21,10 @@ namespace Unity.Connect.Share.Editor
             }
         }
 
-        // Register a new SettingsProvider that will scrape the owning assembly for [UserSetting] marked fields.
+        /// <summary>
+        /// Register a new SettingsProvider that will scrape the owning assembly for [UserSetting] marked fields. 
+        /// </summary>
+        /// <returns>The settings provider</returns>
         [SettingsProvider]
         static SettingsProvider CreateSettingsProvider()
         {

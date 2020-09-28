@@ -4,6 +4,19 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2020-09-28
+### Added
+- [Feature] When "Publish successful builds automatically" is enabled, successful builds made from the WebGL Publisher are automatically published
+- [Feature] Added an option to automatically create a folder for builds that is also proposed as the default location (enabled by default, can be disabled in Edit > Preferences)
+- [UI] Added a menu item to toggle auto publishing in the Upload tab
+
+### Changed
+- [Feature] If available, the location of the last build is proposed as the output folder when making a new build
+
+### Fixed
+- [Bugfix] Fixed weird folder location being proposed after removing a build from the list and then clicking on "locate a build"
+- [Bugfix] Fixed builds not showing up immediately in the list of available builds if the WebGL Publisher was already open when the build process completed
+
 ## [2.0.6] - 2020-08-31
 ### Changed
 - [UI] Removed the option to delete a build folder from disk, to prevent users from accidentally delete system-critical folders
