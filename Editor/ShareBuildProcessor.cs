@@ -53,8 +53,7 @@ namespace Unity.Connect.Share.Editor
                 buildGUID = buildGUID
             });
 
-            WriteMetadataFile(summary.outputPath, buildGUID);
-            windowInstance?.OnBuildCompleted();
+            WriteMetadataFilesAndFinalizeBuild(summary.outputPath, buildGUID);
         }
 
         IEnumerator WaitUntilBuildFinishes(BuildReport report)
@@ -81,35 +80,59 @@ namespace Unity.Connect.Share.Editor
             }
         }
 
+        static IEnumerator WritePackagesList(string dependenciesFilePath)
+        {
+            var request = UnityEditor.PackageManager.Client.List(false, false);
+            while (!request.IsCompleted)
+            {
+                yield return null;
+            }
+
+            using (StreamWriter streamWriter = new StreamWriter(dependenciesFilePath, false))
+            {
+                request.Result
+                        .Select(pkg => $"{pkg.name}@{pkg.version}")
+                        // We probably don't have the package.json of the used project available,
+                        // so add the information manually
+                        .Concat(new[] { $"{GetApplicationIdentifier() ?? Application.productName}@{Application.version}" })
+                        .Distinct()
+                        .ToList()
+                        .ForEach(streamWriter.WriteLine);
+            }
+            ShareWindow windowInstance = ShareWindow.FindInstance();
+            windowInstance?.OnBuildCompleted(windowInstance.Store.state.buildOutputDir);
+        }
+
+        /// <summary>
+        /// As Application.identifier cannot be trusted (it can return empty on WebGL, for example)
+        /// Reads the value directly from the ProjectSettings.
+        /// </summary>
+        /// <returns>null if value not set</returns>
+        static string GetApplicationIdentifier()
+        {
+            var projectSettings = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget("ProjectSettings/ProjectSettings.asset");
+            using (var so = new SerializedObject(projectSettings[0]))
+                return so.FindProperty("applicationIdentifier.Array.data[0].second")?.stringValue;
+        }
+
         /// <summary>
         /// Write metadata files into the build directory
         /// </summary>
         /// <param name="outputPath"></param>
-        void WriteMetadataFile(string outputPath, string buildGUID)
+        void WriteMetadataFilesAndFinalizeBuild(string outputPath, string buildGUID)
         {
             try
             {
-                // dependencies.txt: list of "depepedency@version"
-                string dependenciesFilePath = $"{outputPath}/dependencies.txt";
-
-                using (StreamWriter streamWriter = new StreamWriter(dependenciesFilePath, false))
-                {
-                    PackageManagerProxy.GetAllVisiblePackages()
-                        .Select(pkg => $"{pkg.name}@{pkg.version}")
-                        // We probably don't have the package.json of the used Microgame available,
-                        // so add the information manually
-                        .Concat(new[] { $"{PackageManagerProxy.GetApplicationIdentifier() ?? Application.productName}@{Application.version}" })
-                        .Distinct()
-                        .ToList()
-                        .ForEach(streamWriter.WriteLine);
-                }
-
                 // The Unity version used
                 string versionFilePath = $"{outputPath}/ProjectVersion.txt";
                 File.Copy("ProjectSettings/ProjectVersion.txt", versionFilePath, true);
 
                 string guidFilePath = $"{outputPath}/GUID.txt";
                 File.WriteAllText(guidFilePath, buildGUID);
+
+                // dependencies.txt: list of "depepedency@version"
+                string dependenciesFilePath = $"{outputPath}/dependencies.txt";
+                EditorCoroutineUtility.StartCoroutineOwnerless(WritePackagesList(dependenciesFilePath));
             }
             catch (Exception e)
             {
@@ -136,7 +159,7 @@ namespace Unity.Connect.Share.Editor
                     }
                 }
 
-                path = EditorUtility.SaveFolderPanel("Choose Folder for New WebGL Build", defaultOutputDirectory, "");
+                path = EditorUtility.SaveFolderPanel(Localization.Tr("DIALOG_CHOOSE_BUILD_FOLDER"), defaultOutputDirectory, "");
 
                 if (string.IsNullOrEmpty(path)) { return (false, string.Empty); }
 

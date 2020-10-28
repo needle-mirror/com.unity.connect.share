@@ -10,19 +10,25 @@ using UnityEngine.Networking;
 
 namespace Unity.Connect.Share.Editor
 {
+    /// <summary>
+    /// Performs operations according to the state of the application
+    /// </summary>
     public class ShareMiddleware
     {
-        private static UnityWebRequest uploadRequest;
-        private const string webglSharingFile = "webgl_sharing";
-        private const string zipName = "connectwebgl.zip";
-        private const string thumbnail = "thumbnail.png";
-        private const string uploadEndpoint = "/api/webgl/upload";
-        private const string queryProgressEndpoint = "/api/webgl/progress";
-        private const string UndefinedGUID = "UNDEFINED_GUID";
-        private const int ZipFileLimitBytes = 500 * 1024 * 1024;
+        const string WebglSharingFile = "webgl_sharing";
+        const string ZipName = "connectwebgl.zip";
+        const string UploadEndpoint = "/api/webgl/upload";
+        const string QueryProgressEndpoint = "/api/webgl/progress";
+        const string UndefinedGUID = "UNDEFINED_GUID";
+        const int ZipFileLimitBytes = 500 * 1024 * 1024;
 
         static EditorCoroutine waitUntilUserLogsInRoutine;
+        static UnityWebRequest uploadRequest;
 
+        /// <summary>
+        /// Creates a new middleware according to the state
+        /// </summary>
+        /// <returns></returns>
         public static Middleware<AppState> Create()
         {
             return (store) => (next) => (action) =>
@@ -47,7 +53,7 @@ namespace Unity.Connect.Share.Editor
 
             if (!ShareUtils.BuildIsValid(buildPath))
             {
-                store.Dispatch(new OnErrorAction { errorMsg = "Please build project first!" });
+                store.Dispatch(new OnErrorAction { errorMsg = Localization.Tr("ERROR_BUILD_ABSENT") });
                 return;
             }
 
@@ -65,35 +71,20 @@ namespace Unity.Connect.Share.Editor
         private static bool Zip(Store<AppState> store, string buildOutputDir)
         {
             var projectDir = Directory.GetParent(Application.dataPath).FullName;
-            var destPath = Path.Combine(projectDir, zipName);
+            var destPath = Path.Combine(projectDir, ZipName);
 
             File.Delete(destPath);
-
-            CopyThumbnail(buildOutputDir, store);
 
             ZipFile.CreateFromDirectory(buildOutputDir, destPath);
             FileInfo fileInfo = new FileInfo(destPath);
 
             if (fileInfo.Length > ZipFileLimitBytes)
             {
-                store.Dispatch(new OnErrorAction { errorMsg = $"Max. allowed WebGL game .zip size is {ShareUtils.FormatBytes(ZipFileLimitBytes)}." });
+                store.Dispatch(new OnErrorAction { errorMsg = string.Format(Localization.Tr("ERROR_MAX_SIZE"), ShareUtils.FormatBytes(ZipFileLimitBytes))});
                 return false;
             }
             store.Dispatch(new ZipPathChangeAction { zipPath = destPath });
             return true;
-        }
-
-        private static void CopyThumbnail(string buildOutputDir, Store<AppState> store)
-        {
-            string thumbnailDestPath = Path.Combine(buildOutputDir, thumbnail);
-
-            File.Delete(thumbnailDestPath);
-
-            string thumbnailDir = ShareUtils.GetThumbnailPath();
-
-            if (string.IsNullOrEmpty(thumbnailDir) || !File.Exists(thumbnailDir)) { return; }
-
-            FileUtil.CopyFileOrDirectory(thumbnailDir, thumbnailDestPath);
         }
 
         private static void Upload(Store<AppState> store, string buildGUID)
@@ -127,7 +118,7 @@ namespace Unity.Connect.Share.Editor
             formSections.Add(new MultipartFormFileSection("file",
                 File.ReadAllBytes(path), Path.GetFileName(path), "application/zip"));
 
-            uploadRequest = UnityWebRequest.Post(baseUrl + uploadEndpoint, formSections);
+            uploadRequest = UnityWebRequest.Post(baseUrl + UploadEndpoint, formSections);
             uploadRequest.SetRequestHeader("Authorization", $"Bearer {token}");
             uploadRequest.SetRequestHeader("X-Requested-With", "XMLHTTPREQUEST");
 
@@ -146,7 +137,7 @@ namespace Unity.Connect.Share.Editor
                 {
                     if (uploadRequest.error != "Request aborted")
                     {
-                        store.Dispatch(new OnErrorAction { errorMsg = "Internal server error" });
+                        store.Dispatch(new OnErrorAction { errorMsg = uploadRequest.error });
                     }
                 }
                 else
@@ -178,7 +169,7 @@ namespace Unity.Connect.Share.Editor
             key = key ?? store.state.key;
             string baseUrl = GetAPIBaseUrl();
 
-            var uploadRequest = UnityWebRequest.Get($"{baseUrl + queryProgressEndpoint}?key={key}");
+            var uploadRequest = UnityWebRequest.Get($"{baseUrl + QueryProgressEndpoint}?key={key}");
             uploadRequest.SetRequestHeader("Authorization", $"Bearer {token}");
             uploadRequest.SetRequestHeader("X-Requested-With", "XMLHTTPREQUEST");
             var op = uploadRequest.SendWebRequest();
@@ -213,16 +204,16 @@ namespace Unity.Connect.Share.Editor
         {
             if (projectId.Length == 0) { return; }
 
-            StreamWriter writer = new StreamWriter(webglSharingFile, false);
+            StreamWriter writer = new StreamWriter(WebglSharingFile, false);
             writer.Write(projectId);
             writer.Close();
         }
 
         private static string GetProjectId()
         {
-            if (!File.Exists(webglSharingFile)) { return string.Empty; }
+            if (!File.Exists(WebglSharingFile)) { return string.Empty; }
 
-            var reader = new StreamReader(webglSharingFile);
+            var reader = new StreamReader(WebglSharingFile);
             var projectId = reader.ReadLine();
 
             reader.Close();
@@ -292,22 +283,47 @@ namespace Unity.Connect.Share.Editor
                 return "https://connect-dev.unity.com";
             }
 
-            return "https://connect.unity.com";
+            return "https://play.unity.com";
         }
     }
 
+
+    /// <summary>
+    /// The response received on an Upload request
+    /// </summary>
     [Serializable]
     public class UploadResponse
     {
+        /// <summary>
+        /// The key that identifies the uploaded project
+        /// </summary>
         public string key;
     }
 
+    /// <summary>
+    /// A response that contains data about upload progress
+    /// </summary>
     [Serializable]
     public class GetProgressResponse
     {
+        /// <summary>
+        /// ID of the project
+        /// </summary>
         public string projectId;
+
+        /// <summary>
+        /// URL of the project
+        /// </summary>
         public string url;
+
+        /// <summary>
+        /// Upload progress
+        /// </summary>
         public int progress;
+
+        /// <summary>
+        /// Error which occured
+        /// </summary>
         public string error;
     }
 }

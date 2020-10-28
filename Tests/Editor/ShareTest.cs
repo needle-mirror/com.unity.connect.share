@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.Hosting;
 using System.Threading;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace Unity.Connect.Share.Editor.Tests
@@ -14,8 +15,8 @@ namespace Unity.Connect.Share.Editor.Tests
         ShareWindow shareWindow;
         string outputFolder;
 
-        [SetUp]
-        public void SetUp()
+        [UnitySetUp]
+        public IEnumerator SetUp()
         {
             outputFolder = Path.Combine(UnityEngine.Application.temporaryCachePath, "TempBuild/");
             if (!Directory.Exists(outputFolder))
@@ -24,6 +25,11 @@ namespace Unity.Connect.Share.Editor.Tests
             }
             shareWindow = ShareWindow.OpenShareWindow();
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+
+            while (shareWindow.IsWaitingForLocalizationToBeReady)
+            {
+                yield return null;
+            }
         }
 
         [TearDown]
@@ -48,13 +54,13 @@ namespace Unity.Connect.Share.Editor.Tests
         [UnityTest]
         public IEnumerator EventSystem_OnError_ShowsErrorTab()
         {
-            string previousTab = shareWindow.currentTab;
+            string previousTab = shareWindow.CurrentTab;
             shareWindow.Store.Dispatch(new OnErrorAction { errorMsg = "Please build project first!" });
 
             yield return null;
 
-            Assert.AreNotEqual(previousTab, shareWindow.currentTab);
-            Assert.AreEqual(ShareWindow.TAB_ERROR, shareWindow.currentTab);
+            Assert.AreNotEqual(previousTab, shareWindow.CurrentTab);
+            Assert.AreEqual(ShareWindow.TabError, shareWindow.CurrentTab);
         }
 
         const ulong KB = 1024ul;

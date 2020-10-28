@@ -13,14 +13,24 @@ namespace Unity.Connect.Share.Editor
     /// </summary>
     public static class ShareUtils
     {
-        public const int MAX_DISPLAYED_BUILDS = 10;
+        /// <summary>
+        /// The max number of builds that can be displayed in the UI at the same time
+        /// </summary>
+        public const int MaxDisplayedBuilds = 10;
+
+        /// <summary>
+        /// the default name of every uploaded game
+        /// </summary>
         public const string DefaultGameName = "Untitled";
+        const string ProjectVersionRegex = "^\\d{4}\\.\\d{1}\\Z";
 
-        const string PROJECT_VERSION_REGEX = "^\\d{4}\\.\\d{1}\\Z";
-
+        /// <summary>
+        /// Returns a list of MaxDisplayedBuilds build directiories, filling the gaps with empty paths
+        /// </summary>
+        /// <returns>A list of MaxDisplayedBuilds build directiories, filling the gaps with empty paths</returns>
         public static List<string> GetAllBuildsDirectories()
         {
-            List<string> result = Enumerable.Repeat(string.Empty, MAX_DISPLAYED_BUILDS).ToList();
+            List<string> result = Enumerable.Repeat(string.Empty, MaxDisplayedBuilds).ToList();
             string path = GetEditorPreference("buildOutputDirList");
 
             if (string.IsNullOrEmpty(path)) { return result; }
@@ -33,19 +43,23 @@ namespace Unity.Connect.Share.Editor
             return result;
         }
 
+        /// <summary>
+        /// Adds a directory to the list of tracked builds
+        /// </summary>
+        /// <param name="buildPath">The path to a build</param>
         public static void AddBuildDirectory(string buildPath)
         {
             string path = GetEditorPreference("buildOutputDirList");
             List<string> buildPaths = path.Split(';').ToList();
             if (buildPaths.Contains(buildPath)) { return; }
 
-            while (buildPaths.Count < MAX_DISPLAYED_BUILDS)
+            while (buildPaths.Count < MaxDisplayedBuilds)
             {
                 buildPaths.Add(string.Empty);
             }
 
             //Left Shift
-            for (int i = MAX_DISPLAYED_BUILDS - 1; i > 0; i--)
+            for (int i = MaxDisplayedBuilds - 1; i > 0; i--)
             {
                 buildPaths[i] = buildPaths[i - 1];
             }
@@ -54,13 +68,17 @@ namespace Unity.Connect.Share.Editor
             SetEditorPreference("buildOutputDirList", string.Join(";", buildPaths));
         }
 
+        /// <summary>
+        /// Removes a directory from the list of tracked builds
+        /// </summary>
+        /// <param name="buildPath">The path to a build</param>
         public static void RemoveBuildDirectory(string buildPath)
         {
             List<string> buildPaths = GetEditorPreference("buildOutputDirList").Split(';').ToList();
 
             buildPaths.Remove(buildPath);
 
-            while (buildPaths.Count < MAX_DISPLAYED_BUILDS)
+            while (buildPaths.Count < MaxDisplayedBuilds)
             {
                 buildPaths.Add(string.Empty);
             }
@@ -68,10 +86,23 @@ namespace Unity.Connect.Share.Editor
             SetEditorPreference("buildOutputDirList", string.Join(";", buildPaths));
         }
 
+        /// <summary>
+        /// Is a valid build tracked?
+        /// </summary>
+        /// <returns></returns>
         public static bool ValidBuildExists() => !string.IsNullOrEmpty(GetFirstValidBuildPath());
 
+        /// <summary>
+        /// Returns the first valid build path among all builds tracked
+        /// </summary>
+        /// <returns></returns>
         public static string GetFirstValidBuildPath() => GetAllBuildsDirectories().FirstOrDefault(BuildIsValid);
 
+        /// <summary>
+        /// Determines whether a build is valid or not
+        /// </summary>
+        /// <param name="buildPath">The path to a build</param>
+        /// <returns>True if the build follows the standard for a supported Unity version, false otherwise</returns>
         public static bool BuildIsValid(string buildPath)
         {
             if (string.IsNullOrEmpty(buildPath)) { return false; }
@@ -89,6 +120,12 @@ namespace Unity.Connect.Share.Editor
             }
         }
 
+        /// <summary>
+        /// Determines whether a build is valid or not, according to Unity 2019.3 WebGL build standard output
+        /// </summary>
+        /// <param name="buildPath">The path to a build</param>
+        /// <param name="descriptorFileName"></param>
+        /// <returns>True if the build follows the standard for a supported Unity version, false otherwise</returns>
         public static bool BuildIsCompatibleFor2019_3(string buildPath, string descriptorFileName)
         {
             return File.Exists(Path.Combine(buildPath, string.Format("Build/{0}.data.unityweb", descriptorFileName)))
@@ -98,6 +135,12 @@ namespace Unity.Connect.Share.Editor
                 && File.Exists(Path.Combine(buildPath, string.Format("Build/UnityLoader.js", descriptorFileName)));
         }
 
+        /// <summary>
+        /// Determines whether a build is valid or not, according to Unity 2020.2 WebGL build standard output
+        /// </summary>
+        /// <param name="buildPath">The path to a build</param>
+        /// <param name="descriptorFileName"></param>
+        /// <returns>True if the build follows the standard for a supported Unity version, false otherwise</returns>
         public static bool BuildIsCompatibleFor2020_2(string buildPath, string descriptorFileName)
         {
             string buildFilesPath = Path.Combine(buildPath, "Build/");
@@ -107,6 +150,11 @@ namespace Unity.Connect.Share.Editor
                 && Directory.GetFiles(buildFilesPath, string.Format("{0}.wasm.*", descriptorFileName)).Length > 0;
         }
 
+        /// <summary>
+        /// Gets the Unity version with which a WebGL build was made
+        /// </summary>
+        /// <param name="buildPath">The path to a build</param>
+        /// <returns></returns>
         public static string GetUnityVersionOfBuild(string buildPath)
         {
             if (string.IsNullOrEmpty(buildPath)) { return string.Empty; }
@@ -115,13 +163,20 @@ namespace Unity.Connect.Share.Editor
             if (!File.Exists(versionFile)) { return string.Empty; }
 
             string version = File.ReadAllLines(versionFile)[0].Split(' ')[1].Substring(0, 6); //The row is something like: m_EditorVersion: 2019.3.4f1, so it will return 2019.3
-            return Regex.IsMatch(version, PROJECT_VERSION_REGEX) ?  version : string.Empty;
+            return Regex.IsMatch(version, ProjectVersionRegex) ?  version : string.Empty;
         }
 
-        public static string GetThumbnailPath() { return GetEditorPreference("thumbnailPath"); }
-        public static void SetThumbnailPath(string path) { SetEditorPreference("thumbnailPath", path); }
-
+        /// <summary>
+        /// Sets an editor preference for the project
+        /// </summary>
+        /// <param name="key">ID of the preference</param>
+        /// <param name="value">New value</param>
         public static void SetEditorPreference(string key, string value) { ShareSettingsManager.instance.Set(key, value, SettingsScope.Project); }
+        /// <summary>
+        /// Gets an editor preference for the project
+        /// </summary>
+        /// <param name="key">ID of the preference</param>
+        /// <returns>the value of the preference</returns>
         public static string GetEditorPreference(string key)
         {
             string result = ShareSettingsManager.instance.Get<string>(key, SettingsScope.Project);
@@ -133,6 +188,11 @@ namespace Unity.Connect.Share.Editor
             return result;
         }
 
+        /// <summary>
+        /// Filters the name of the game, removing all spaces.
+        /// </summary>
+        /// <param name="currentGameTitle">The original name of the game</param>
+        /// <returns>The name of the game without spaces, or a default name if the result would be invalid.</returns>
         public static string GetFilteredGameTitle(string currentGameTitle)
         {
             if (string.IsNullOrEmpty(currentGameTitle?.Trim())) { return DefaultGameName; }
@@ -157,6 +217,11 @@ namespace Unity.Connect.Share.Editor
             return $"{bytes} B";
         }
 
+        /// <summary>
+        /// Gets the size of a folder, in bytes
+        /// </summary>
+        /// <param name="folder">The folder to analyze</param>
+        /// <returns>The size of the folder, in bytes</returns>
         public static ulong GetSizeFolderSize(string folder)
         {
             ulong size = 0;
@@ -176,24 +241,38 @@ namespace Unity.Connect.Share.Editor
             Action<VisualElement> OnClick;
             bool active;
 
+            /// <summary>
+            /// LeftClickManipulator Constructor
+            /// </summary>
+            /// <param name="OnClick">The default callback that will be triggered when the element is clicked</param>
             public LeftClickManipulator(Action<VisualElement> OnClick)
             {
                 activators.Add(new ManipulatorActivationFilter { button = MouseButton.LeftMouse });
                 this.OnClick = OnClick;
             }
 
+            /// <summary>
+            /// Registers the callbacks on the target
+            /// </summary>
             protected override void RegisterCallbacksOnTarget()
             {
                 target.RegisterCallback<MouseDownEvent>(OnMouseDown);
                 target.RegisterCallback<MouseUpEvent>(OnMouseUp);
             }
 
+            /// <summary>
+            /// Unregisters the callbacks on the target
+            /// </summary>
             protected override void UnregisterCallbacksFromTarget()
             {
                 target.UnregisterCallback<MouseUpEvent>(OnMouseUp);
                 target.UnregisterCallback<MouseDownEvent>(OnMouseDown);
             }
 
+            /// <summary>
+            /// Called when the mouse is clicked on the target, when the user starts pressing the button
+            /// </summary>
+            /// <param name="e"></param>
             protected void OnMouseDown(MouseDownEvent e)
             {
                 if (active)
@@ -210,6 +289,10 @@ namespace Unity.Connect.Share.Editor
                 }
             }
 
+            /// <summary>
+            /// Called when the mouse is clicked on the target, when the user stops pressing the button
+            /// </summary>
+            /// <param name="e"></param>
             protected void OnMouseUp(MouseUpEvent e)
             {
                 if (!active || !target.HasMouseCapture() || !CanStopManipulation(e)) { return; }

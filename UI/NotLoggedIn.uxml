@@ -3,7 +3,7 @@
         <Style src="Styles.uss" />
         <ui:VisualElement name="imgLogo" class="status-icon status-icon-account" />
         <ui:Label text="Not Signed In" name="lblTitle" class="progress-label" />
-        <ui:Label text="You need to be signed in to publish your project" name="lblTitle" class="info-text" />
+        <ui:Label text="You need to be signed in to publish your project" name="lblSubTitle1" class="info-text" />
     </ui:VisualElement>
     <ui:Button text="Sign In" name="btnSignIn" class="bottom-button bottom-button-blue">
         <Style src="Styles.uss" />

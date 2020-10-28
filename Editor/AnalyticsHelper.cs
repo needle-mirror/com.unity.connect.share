@@ -6,10 +6,22 @@ using UnityEngine.Analytics;
 
 namespace Unity.Connect.Share.Editor
 {
+    /// <summary>
+    /// The result of the upload process
+    /// </summary>
     public enum UploadResult
     {
+        /// <summary>
+        /// The upload process was manually interrupted by the user
+        /// </summary>
         Cancelled,
+        /// <summary>
+        /// The upload process was automatically interrupted by an error
+        /// </summary>
         Failed,
+        /// <summary>
+        /// The upload process succeeded
+        /// </summary>
         Succeeded
     }
 
@@ -38,6 +50,9 @@ namespace Unity.Connect.Share.Editor
         DateTime lastBuildStartTime;
         DateTime lastUploadStartTime;
 
+        /// <summary>
+        /// The instance of the analytics helper
+        /// </summary>
         public static AnalyticsHelper Instance
         {
             get

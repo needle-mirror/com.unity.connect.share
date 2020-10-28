@@ -4,6 +4,16 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2020-10-28
+### Added
+- [Feature] Added localization support for all editor languages
+- [UI] When an upload error occurs, a more specific error is now displayed instead of "internal server error"
+- [Documentation] Documented all public classes / APIs
+- [Documentation] Added package manual (index.md file in Documentation folder)
+
+### Changed
+- [System] Games are now uploaded to https://play.unity.com/ instead of https://connect.unity.com/ 
+
 ## [2.1.0] - 2020-09-28
 ### Added
 - [Feature] When "Publish successful builds automatically" is enabled, successful builds made from the WebGL Publisher are automatically published
