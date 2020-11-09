@@ -1,10 +1,12 @@
 using UnityEditor.Connect;
+using UnityEngine.Scripting.APIUpdating;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
     /// Bridge to the internal UnityConnectSession API
     /// </summary>
+    [MovedFrom("Unity.Connect.Share.Editor.UnityConnectSession")]
     public class UnityConnectSession
     {
         static UnityConnectSession _instance = new UnityConnectSession();

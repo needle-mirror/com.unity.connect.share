@@ -1,6 +1,6 @@
 using System;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
     /// Represents the state of the App
@@ -9,7 +9,7 @@ namespace Unity.Connect.Share.Editor
     public class AppState
     {
         /// <summary>
-        /// Constructor
+        /// Initializes and returns an instance of AppState
         /// </summary>
         /// <param name="title"></param>
         /// <param name="buildOutputDir"></param>
@@ -21,7 +21,7 @@ namespace Unity.Connect.Share.Editor
         /// <param name="url"></param>
         public AppState(
             string title = null, string buildOutputDir = null, string buildGUID = null, string zipPath = null,
-            ShareStep step = default, string errorMsg = null, string key = null, string url = null)
+            PublisherState step = default, string errorMsg = null, string key = null, string url = null)
         {
             this.title = title;
             this.buildOutputDir = buildOutputDir;
@@ -47,7 +47,7 @@ namespace Unity.Connect.Share.Editor
         /// <returns></returns>
         public AppState CopyWith(
             string title = null, string buildOutputDir = null, string buildGUID = null, string zipPath = null,
-            ShareStep? step = default, string errorMsg = null, string key = null, string url = null)
+            PublisherState? step = default, string errorMsg = null, string key = null, string url = null)
         {
             return new AppState(
                 title: title ?? this.title,
@@ -84,7 +84,7 @@ namespace Unity.Connect.Share.Editor
         /// <summary>
         /// The current step fo the App
         /// </summary>
-        public ShareStep step;
+        public PublisherState step;
 
         /// <summary>
         /// the key that identifies this build process
@@ -103,9 +103,9 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Identifies the state of the app
+    /// Options for identifying the state of the app
     /// </summary>
-    public enum ShareStep
+    public enum PublisherState
     {
         /// <summary>
         /// The app is not doing anything

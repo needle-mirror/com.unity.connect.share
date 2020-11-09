@@ -6,12 +6,12 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine.UIElements;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
-    /// A collection of utility methods used by the Share Package
+    /// Provides a collection of utility methods. These methods are used by the WebGL Publisher and by other tools that need information about existing builds.
     /// </summary>
-    public static class ShareUtils
+    public static class PublisherUtils
     {
         /// <summary>
         /// The max number of builds that can be displayed in the UI at the same time
@@ -25,9 +25,16 @@ namespace Unity.Connect.Share.Editor
         const string ProjectVersionRegex = "^\\d{4}\\.\\d{1}\\Z";
 
         /// <summary>
-        /// Returns a list of MaxDisplayedBuilds build directiories, filling the gaps with empty paths
+        /// Retrieves a list of build directories.
         /// </summary>
-        /// <returns>A list of MaxDisplayedBuilds build directiories, filling the gaps with empty paths</returns>
+        /// <remarks>
+        /// The list always contains MaxDisplayedBuilds elements.
+        /// If not enough build paths are retrieved, the missing elements will just contain empty paths.
+        /// </remarks>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="GetAllBuildsDirectories" title="GetAllBuildsDirectories"/>
+        /// </example>
+        /// <returns>Returns a list of build directories</returns>
         public static List<string> GetAllBuildsDirectories()
         {
             List<string> result = Enumerable.Repeat(string.Empty, MaxDisplayedBuilds).ToList();
@@ -44,9 +51,16 @@ namespace Unity.Connect.Share.Editor
         }
 
         /// <summary>
-        /// Adds a directory to the list of tracked builds
+        /// Adds a directory to the list of tracked build directories
         /// </summary>
-        /// <param name="buildPath">The path to a build</param>
+        /// <param name="buildPath">The absolute path to a build</param>
+        /// <remarks>
+        /// if there are already MaxDisplayedBuilds elements in the list, the oldest element will be removed
+        /// to make room for the new build directory.
+        /// </remarks>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="AddBuildDirectory" title="AddBuildDirectory"/>
+        /// </example>
         public static void AddBuildDirectory(string buildPath)
         {
             string path = GetEditorPreference("buildOutputDirList");
@@ -71,11 +85,16 @@ namespace Unity.Connect.Share.Editor
         /// <summary>
         /// Removes a directory from the list of tracked builds
         /// </summary>
-        /// <param name="buildPath">The path to a build</param>
+        /// <param name="buildPath">The absolute path to a build</param>
+        /// <remarks>
+        /// The removed element will be replaced with an empty string.
+        /// </remarks>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="RemoveBuildDirectory" title="RemoveBuildDirectory"/>
+        /// </example>
         public static void RemoveBuildDirectory(string buildPath)
         {
             List<string> buildPaths = GetEditorPreference("buildOutputDirList").Split(';').ToList();
-
             buildPaths.Remove(buildPath);
 
             while (buildPaths.Count < MaxDisplayedBuilds)
@@ -87,22 +106,31 @@ namespace Unity.Connect.Share.Editor
         }
 
         /// <summary>
-        /// Is a valid build tracked?
+        /// Determines whether a valid build is tracked
         /// </summary>
-        /// <returns></returns>
+        /// <remarks>
+        /// A build is considered valid if its folders contain all files that are typically created for WebGL builds, specific to its Unity version.
+        /// </remarks>
+        /// <returns>Returns True if a non-corrupted build is tracked</returns>
         public static bool ValidBuildExists() => !string.IsNullOrEmpty(GetFirstValidBuildPath());
 
         /// <summary>
         /// Returns the first valid build path among all builds tracked
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns the first valid build path among all builds tracked, if any. Otherwise, returns an empty string</returns>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="GetFirstValidBuildPath" title="GetFirstValidBuildPath"/>
+        /// </example>
         public static string GetFirstValidBuildPath() => GetAllBuildsDirectories().FirstOrDefault(BuildIsValid);
 
         /// <summary>
         /// Determines whether a build is valid or not
         /// </summary>
+        /// <remarks>
+        /// A build is considered valid if its folders contain all files that are typically created for WebGL builds, specific to its Unity version.
+        /// </remarks>
         /// <param name="buildPath">The path to a build</param>
-        /// <returns>True if the build follows the standard for a supported Unity version, false otherwise</returns>
+        /// <returns>Returns True if the build follows the standard for a supported Unity version, otherwise returns false</returns>
         public static bool BuildIsValid(string buildPath)
         {
             if (string.IsNullOrEmpty(buildPath)) { return false; }
@@ -125,7 +153,7 @@ namespace Unity.Connect.Share.Editor
         /// </summary>
         /// <param name="buildPath">The path to a build</param>
         /// <param name="descriptorFileName"></param>
-        /// <returns>True if the build follows the standard for a supported Unity version, false otherwise</returns>
+        /// <returns>Returns True if the build follows the standard for a supported Unity version, otherwise returns false</returns>
         public static bool BuildIsCompatibleFor2019_3(string buildPath, string descriptorFileName)
         {
             return File.Exists(Path.Combine(buildPath, string.Format("Build/{0}.data.unityweb", descriptorFileName)))
@@ -140,7 +168,7 @@ namespace Unity.Connect.Share.Editor
         /// </summary>
         /// <param name="buildPath">The path to a build</param>
         /// <param name="descriptorFileName"></param>
-        /// <returns>True if the build follows the standard for a supported Unity version, false otherwise</returns>
+        /// <returns>Returns True if the build follows the standard for a supported Unity version, otherwise returns false</returns>
         public static bool BuildIsCompatibleFor2020_2(string buildPath, string descriptorFileName)
         {
             string buildFilesPath = Path.Combine(buildPath, "Build/");
@@ -154,7 +182,7 @@ namespace Unity.Connect.Share.Editor
         /// Gets the Unity version with which a WebGL build was made
         /// </summary>
         /// <param name="buildPath">The path to a build</param>
-        /// <returns></returns>
+        /// <returns>Returns the Unity version with which a WebGL build was made, if the build contains that information. Otherwise, returns an empty string</returns>
         public static string GetUnityVersionOfBuild(string buildPath)
         {
             if (string.IsNullOrEmpty(buildPath)) { return string.Empty; }
@@ -167,19 +195,20 @@ namespace Unity.Connect.Share.Editor
         }
 
         /// <summary>
-        /// Sets an editor preference for the project
+        /// Sets an editor preference for the project, using the PublisherSettingsManager
         /// </summary>
         /// <param name="key">ID of the preference</param>
         /// <param name="value">New value</param>
-        public static void SetEditorPreference(string key, string value) { ShareSettingsManager.instance.Set(key, value, SettingsScope.Project); }
+        public static void SetEditorPreference(string key, string value) { PublisherSettingsManager.instance.Set(key, value, SettingsScope.Project); }
+
         /// <summary>
-        /// Gets an editor preference for the project
+        /// Gets an editor preference for the project, using the PublisherSettingsManager
         /// </summary>
         /// <param name="key">ID of the preference</param>
-        /// <returns>the value of the preference</returns>
+        /// <returns>Returns the value stored for that preference ID</returns>
         public static string GetEditorPreference(string key)
         {
-            string result = ShareSettingsManager.instance.Get<string>(key, SettingsScope.Project);
+            string result = PublisherSettingsManager.instance.Get<string>(key, SettingsScope.Project);
             if (result == null)
             {
                 result = string.Empty;
@@ -192,7 +221,10 @@ namespace Unity.Connect.Share.Editor
         /// Filters the name of the game, removing all spaces.
         /// </summary>
         /// <param name="currentGameTitle">The original name of the game</param>
-        /// <returns>The name of the game without spaces, or a default name if the result would be invalid.</returns>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="GetFilteredGameTitle" title="GetFilteredGameTitle"/>
+        /// </example>
+        /// <returns>Returns the name of the game without spaces, or a default name if the result would be invalid.</returns>
         public static string GetFilteredGameTitle(string currentGameTitle)
         {
             if (string.IsNullOrEmpty(currentGameTitle?.Trim())) { return DefaultGameName; }
@@ -201,10 +233,13 @@ namespace Unity.Connect.Share.Editor
         }
 
         /// <summary>
-        /// Supports GB, MB, KB, or B
+        /// Formats an amount of bytes so it is represented in one of its multiples. Supports GB, MB, KB, or B
         /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns>xB with two decimals, B with zero decimals</returns>
+        /// <param name="bytes">The amount of bytes to represent</param>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="FormatBytes" title="FormatBytes"/>
+        /// </example>
+        /// <returns>Returns a string representing multiples of Bytes with two decimals and Bytes with zero decimals</returns>
         public static string FormatBytes(ulong bytes)
         {
             double gb = bytes / (1024.0 * 1024.0 * 1024.0);
@@ -221,8 +256,8 @@ namespace Unity.Connect.Share.Editor
         /// Gets the size of a folder, in bytes
         /// </summary>
         /// <param name="folder">The folder to analyze</param>
-        /// <returns>The size of the folder, in bytes</returns>
-        public static ulong GetSizeFolderSize(string folder)
+        /// <returns>Returns the size of the folder, in bytes</returns>
+        public static ulong GetFolderSize(string folder)
         {
             ulong size = 0;
             DirectoryInfo directoryInfo = new DirectoryInfo(folder);
@@ -234,7 +269,41 @@ namespace Unity.Connect.Share.Editor
         }
 
         /// <summary>
-        /// Allows a visual element to react on left click
+        /// Gets the current PublisherState of a PublisherWindow instance
+        /// </summary>
+        /// <remarks>
+        /// Use this to detect a change in the current step and react accordingly
+        /// (I.E: use it to understand if the user started the publishing process)
+        /// </remarks>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="GetCurrentPublisherState" title="GetCurrentPublisherState"/>
+        /// </example>
+        /// <param name="instance">The instance of an open PublisherWindow</param>
+        /// <returns>Returns the current PublisherState of a PublisherWindow instance</returns>
+        public static PublisherState GetCurrentPublisherState(PublisherWindow instance)
+        {
+            return instance.Store.state.step;
+        }
+
+        /// <summary>
+        /// Gets the URL of the last build that was published during the current session.
+        /// Only valid as long as the PublisherWindow stays open.
+        /// </summary>
+        /// <remarks>
+        /// If this is empty, no build has been published.
+        /// </remarks>
+        /// <example>
+        /// <code source="./Examples/PublisherExamples.cs" region="GetUrlOfLastPublishedBuild" title="GetUrlOfLastPublishedBuild"/>
+        /// </example>
+        /// <param name="instance">The instance of an open PublisherWindow</param>
+        /// <returns>Returns the URL of the last build that was published during the current session.</returns>
+        public static string GetUrlOfLastPublishedBuild(PublisherWindow instance)
+        {
+            return instance.Store.state.url;
+        }
+
+        /// <summary>
+        /// Represents a MouseManipulator that allows a visual element to react when left clicked
         /// </summary>
         public class LeftClickManipulator : MouseManipulator
         {
@@ -242,7 +311,7 @@ namespace Unity.Connect.Share.Editor
             bool active;
 
             /// <summary>
-            /// LeftClickManipulator Constructor
+            /// Initializes and returns an instance of LeftClickManipulator.
             /// </summary>
             /// <param name="OnClick">The default callback that will be triggered when the element is clicked</param>
             public LeftClickManipulator(Action<VisualElement> OnClick)

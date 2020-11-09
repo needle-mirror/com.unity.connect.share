@@ -122,7 +122,7 @@ msgid "UPLOAD_CONTAINER_BUTTON_PUBLISH"
 msgstr "Publish"
 
 msgid "UPLOAD_CONTAINER_BUTTON_PUBLISH_TOOLTIP"
-msgstr "Publish WebGL Build to Unity Connect"
+msgstr "Publish WebGL Build to Unity Play"
 
 msgid "UPLOAD_CONTAINER_BUILD_SIZE"
 msgstr "Build Size: {0}"

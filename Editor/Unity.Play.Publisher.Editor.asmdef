@@ -1,5 +1,5 @@
 {
-    "name": "Unity.Connect.Share.Editor",
+    "name": "Unity.Play.Publisher.Editor",
     "references": [
         "Unity.EditorCoroutines.Editor",
         "Unity.Settings.Editor",

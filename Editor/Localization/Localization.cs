@@ -4,7 +4,7 @@
 [assembly: UnityEditor.Localization.Editor.Localization]
 #endif
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
     /// A helper class for Localization.

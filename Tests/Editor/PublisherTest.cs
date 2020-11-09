@@ -8,11 +8,11 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Unity.Connect.Share.Editor.Tests
+namespace Unity.Play.Publisher.Editor.Tests
 {
-    class ShareTest
+    class PublisherTest
     {
-        ShareWindow shareWindow;
+        PublisherWindow publisherWindow;
         string outputFolder;
 
         [UnitySetUp]
@@ -23,10 +23,10 @@ namespace Unity.Connect.Share.Editor.Tests
             {
                 Directory.CreateDirectory(outputFolder);
             }
-            shareWindow = ShareWindow.OpenShareWindow();
+            publisherWindow = PublisherWindow.OpenWindow();
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
-            while (shareWindow.IsWaitingForLocalizationToBeReady)
+            while (publisherWindow.IsWaitingForLocalizationToBeReady)
             {
                 yield return null;
             }
@@ -39,28 +39,28 @@ namespace Unity.Connect.Share.Editor.Tests
             {
                 Directory.Delete(outputFolder, true);
             }
-            shareWindow.Close();
+            publisherWindow.Close();
         }
 
         [TestCase("A Game With Spaces", "A Game With Spaces", TestName = "Normal title")]
-        [TestCase("           ", ShareUtils.DefaultGameName, TestName = "All spaces")]
-        [TestCase("", ShareUtils.DefaultGameName, TestName = "Empty title")]
+        [TestCase("           ", PublisherUtils.DefaultGameName, TestName = "All spaces")]
+        [TestCase("", PublisherUtils.DefaultGameName, TestName = "Empty title")]
         public void GetFilteredGameTitle_HandlesAllCases_Success(string originalTitle, string expectedResult)
         {
-            string filteredTitle = ShareUtils.GetFilteredGameTitle(originalTitle);
+            string filteredTitle = PublisherUtils.GetFilteredGameTitle(originalTitle);
             Assert.AreEqual(expectedResult, filteredTitle);
         }
 
         [UnityTest]
         public IEnumerator EventSystem_OnError_ShowsErrorTab()
         {
-            string previousTab = shareWindow.CurrentTab;
-            shareWindow.Store.Dispatch(new OnErrorAction { errorMsg = "Please build project first!" });
+            string previousTab = publisherWindow.CurrentTab;
+            publisherWindow.Dispatch(new OnErrorAction { errorMsg = "Please build project first!" });
 
             yield return null;
 
-            Assert.AreNotEqual(previousTab, shareWindow.CurrentTab);
-            Assert.AreEqual(ShareWindow.TabError, shareWindow.CurrentTab);
+            Assert.AreNotEqual(previousTab, publisherWindow.CurrentTab);
+            Assert.AreEqual(PublisherWindow.TabError, publisherWindow.CurrentTab);
         }
 
         const ulong KB = 1024ul;
@@ -71,7 +71,7 @@ namespace Unity.Connect.Share.Editor.Tests
         [TestCase(999 * KB * KB * KB, "999.00 GB", TestName = "999 GB")]
         public void FormatBytes_HandlesAllCases_Success(ulong bytes, string expectedResult)
         {
-            Assert.AreEqual(expectedResult, ShareUtils.FormatBytes(bytes));
+            Assert.AreEqual(expectedResult, PublisherUtils.FormatBytes(bytes));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace Unity.Connect.Share.Editor.Tests
             lines.Add("m_EditorVersion: 2019.3.4f1");
             lines.Add("m_EditorVersionWithRevision: 2019.3.4f1(4f139db2fdbd)");
             File.WriteAllLines(Path.Combine(outputFolder, "ProjectVersion.txt"), lines);
-            Assert.AreEqual("2019.3", ShareUtils.GetUnityVersionOfBuild(outputFolder));
+            Assert.AreEqual("2019.3", PublisherUtils.GetUnityVersionOfBuild(outputFolder));
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace Unity.Connect.Share.Editor.Tests
             lines.Add("m_EditorVersionWithRevision: broken data");
 
             File.WriteAllLines(Path.Combine(outputFolder, "ProjectVersion.txt"), lines);
-            Assert.AreEqual(string.Empty, ShareUtils.GetUnityVersionOfBuild(outputFolder));
+            Assert.AreEqual(string.Empty, PublisherUtils.GetUnityVersionOfBuild(outputFolder));
         }
     }
 }

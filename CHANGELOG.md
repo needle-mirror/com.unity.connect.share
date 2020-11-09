@@ -4,6 +4,15 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2020-11-09
+### Added
+- [Documentation] Added examples for non-trivial public APIs
+- [Documentation] Added filters so obsolete methods will no longer be documented
+- [System] The name of the template used for creating the project is now listed in the dependencies.txt file generated during the build process
+
+### Changed
+- [Refactoring] Breaking Change: Renamed namespaces, assemblies and classes so they don't mention Unity Connect or "Share WebGL" anymore. "Connect" has been changed to "Play", and "Share" has been changed to "Publish"
+
 ## [3.0.0] - 2020-10-28
 ### Added
 - [Feature] Added localization support for all editor languages

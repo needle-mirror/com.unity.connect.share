@@ -9,22 +9,22 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.SettingsManagement;
 using UnityEngine;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
-    class ShareBuildProcessor : IPostprocessBuildWithReport, IPreprocessBuildWithReport
+    class PublisherBuildProcessor : IPostprocessBuildWithReport, IPreprocessBuildWithReport
     {
         const string DEFAULT_BUILDS_FOLDER = "WebGL Builds";
 
         /// <summary>
         /// Path to the folder proposed as the default location for builds
         /// </summary>
-        public static readonly string DefaultBuildsFolderPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, ShareBuildProcessor.DEFAULT_BUILDS_FOLDER);
+        public static readonly string DefaultBuildsFolderPath = Path.Combine(Directory.GetParent(Application.dataPath).FullName, PublisherBuildProcessor.DEFAULT_BUILDS_FOLDER);
 
         /// <summary>
         /// Should a default folder be created and proposed for builds?
         /// </summary>
         [UserSetting("Publish WebGL Game", "Create default build folder", "When enabled, a folder named '" + DEFAULT_BUILDS_FOLDER + "' will be created next to the Assets folder and used as the proposed location for new builds")]
-        public static UserSetting<bool> CreateDefaultBuildsFolder = new UserSetting<bool>(ShareSettingsManager.instance, "createDefaultBuildsFolder", true, SettingsScope.Project);
+        public static UserSetting<bool> CreateDefaultBuildsFolder = new UserSetting<bool>(PublisherSettingsManager.instance, "createDefaultBuildsFolder", true, SettingsScope.Project);
 
         static bool buildStartedFromTool = false;
         /// <summary>
@@ -44,9 +44,9 @@ namespace Unity.Connect.Share.Editor
             string buildOutputDir = summary.outputPath;
             string buildGUID = summary.guid.ToString();
 
-            ShareUtils.AddBuildDirectory(buildOutputDir);
+            PublisherUtils.AddBuildDirectory(buildOutputDir);
 
-            ShareWindow windowInstance = ShareWindow.FindInstance();
+            PublisherWindow windowInstance = PublisherWindow.FindInstance();
             windowInstance?.Store.Dispatch(new BuildFinishAction
             {
                 outputDir = buildOutputDir,
@@ -87,32 +87,38 @@ namespace Unity.Connect.Share.Editor
             {
                 yield return null;
             }
+            string templatePackageID = GetTemplatePackageID();
+            if (string.IsNullOrEmpty(templatePackageID))
+            {
+                templatePackageID = $"{Application.productName}@{Application.version}";
+            }
 
             using (StreamWriter streamWriter = new StreamWriter(dependenciesFilePath, false))
             {
                 request.Result
-                        .Select(pkg => $"{pkg.name}@{pkg.version}")
-                        // We probably don't have the package.json of the used project available,
-                        // so add the information manually
-                        .Concat(new[] { $"{GetApplicationIdentifier() ?? Application.productName}@{Application.version}" })
-                        .Distinct()
-                        .ToList()
-                        .ForEach(streamWriter.WriteLine);
+                    .Select(pkg => $"{pkg.name}@{pkg.version}")
+                    // We probably don't have the package.json of the used template available,
+                    // so add the information manually
+                    .Concat(new[] { templatePackageID })
+                    .Distinct()
+                    .ToList()
+                    .ForEach(streamWriter.WriteLine);
             }
-            ShareWindow windowInstance = ShareWindow.FindInstance();
+            PublisherWindow windowInstance = PublisherWindow.FindInstance();
             windowInstance?.OnBuildCompleted(windowInstance.Store.state.buildOutputDir);
         }
 
         /// <summary>
-        /// As Application.identifier cannot be trusted (it can return empty on WebGL, for example)
-        /// Reads the value directly from the ProjectSettings.
+        /// Gets the ID of the template packaged used in this project, reading it directly from the ProjectSettings.
         /// </summary>
-        /// <returns>null if value not set</returns>
-        static string GetApplicationIdentifier()
+        /// <returns>Returns null if the value is not set</returns>
+        static string GetTemplatePackageID()
         {
             var projectSettings = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget("ProjectSettings/ProjectSettings.asset");
             using (var so = new SerializedObject(projectSettings[0]))
-                return so.FindProperty("applicationIdentifier.Array.data[0].second")?.stringValue;
+            {
+                return so.FindProperty("templatePackageId")?.stringValue;
+            }
         }
 
         /// <summary>
@@ -149,7 +155,7 @@ namespace Unity.Connect.Share.Editor
             string path = string.Empty;
             try
             {
-                string defaultOutputDirectory = ShareUtils.GetFirstValidBuildPath();
+                string defaultOutputDirectory = PublisherUtils.GetFirstValidBuildPath();
                 if (string.IsNullOrEmpty(defaultOutputDirectory) && CreateDefaultBuildsFolder)
                 {
                     defaultOutputDirectory = DefaultBuildsFolderPath;

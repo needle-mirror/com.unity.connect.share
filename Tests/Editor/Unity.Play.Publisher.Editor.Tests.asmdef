@@ -1,9 +1,9 @@
 {
-    "name": "Unity.Connect.Share.Editor.Tests",
+    "name": "Unity.Play.Publisher.Editor.Tests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Unity.Connect.Share.Editor"
+        "Unity.Play.Publisher.Editor"
     ],
     "includePlatforms": [
         "Editor"

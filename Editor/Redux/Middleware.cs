@@ -8,12 +8,12 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
-    /// Performs operations according to the state of the application
+    /// Provides methods for performing operations according to the state of the application
     /// </summary>
-    public class ShareMiddleware
+    public class PublisherMiddleware
     {
         const string WebglSharingFile = "webgl_sharing";
         const string ZipName = "connectwebgl.zip";
@@ -26,7 +26,7 @@ namespace Unity.Connect.Share.Editor
         static UnityWebRequest uploadRequest;
 
         /// <summary>
-        /// Creates a new middleware according to the state
+        /// Creates a new middleware according to the state of the application
         /// </summary>
         /// <returns></returns>
         public static Middleware<AppState> Create()
@@ -37,7 +37,7 @@ namespace Unity.Connect.Share.Editor
 
                 switch (action)
                 {
-                    case ShareStartAction shared: ZipAndShare(shared.title, shared.buildPath, store); break;
+                    case PublishStartAction published: ZipAndPublish(published.title, published.buildPath, store); break;
                     case UploadStartAction upload: Upload(store, upload.buildGUID); break;
                     case QueryProgressAction query: CheckProgress(store, query.key); break;
                     case StopUploadAction stopUpload: StopUploadAction(); break;
@@ -47,11 +47,11 @@ namespace Unity.Connect.Share.Editor
             };
         }
 
-        private static void ZipAndShare(string title, string buildPath, Store<AppState> store)
+        static void ZipAndPublish(string title, string buildPath, Store<AppState> store)
         {
             store.Dispatch(new TitleChangeAction { title = title });
 
-            if (!ShareUtils.BuildIsValid(buildPath))
+            if (!PublisherUtils.BuildIsValid(buildPath))
             {
                 store.Dispatch(new OnErrorAction { errorMsg = Localization.Tr("ERROR_BUILD_ABSENT") });
                 return;
@@ -68,7 +68,7 @@ namespace Unity.Connect.Share.Editor
             store.Dispatch(new UploadStartAction() { buildGUID = UndefinedGUID });
         }
 
-        private static bool Zip(Store<AppState> store, string buildOutputDir)
+        static bool Zip(Store<AppState> store, string buildOutputDir)
         {
             var projectDir = Directory.GetParent(Application.dataPath).FullName;
             var destPath = Path.Combine(projectDir, ZipName);
@@ -80,14 +80,14 @@ namespace Unity.Connect.Share.Editor
 
             if (fileInfo.Length > ZipFileLimitBytes)
             {
-                store.Dispatch(new OnErrorAction { errorMsg = string.Format(Localization.Tr("ERROR_MAX_SIZE"), ShareUtils.FormatBytes(ZipFileLimitBytes))});
+                store.Dispatch(new OnErrorAction { errorMsg = string.Format(Localization.Tr("ERROR_MAX_SIZE"), PublisherUtils.FormatBytes(ZipFileLimitBytes))});
                 return false;
             }
             store.Dispatch(new ZipPathChangeAction { zipPath = destPath });
             return true;
         }
 
-        private static void Upload(Store<AppState> store, string buildGUID)
+        static void Upload(Store<AppState> store, string buildGUID)
         {
             var token = UnityConnectSession.instance.GetAccessToken();
             if (token.Length == 0)
@@ -97,7 +97,7 @@ namespace Unity.Connect.Share.Editor
             }
 
             string path = store.state.zipPath;
-            string title = string.IsNullOrEmpty(store.state.title) ? ShareUtils.DefaultGameName : store.state.title;
+            string title = string.IsNullOrEmpty(store.state.title) ? PublisherUtils.DefaultGameName : store.state.title;
 
             string baseUrl = GetAPIBaseUrl();
             string projectId = GetProjectId();
@@ -151,13 +151,13 @@ namespace Unity.Connect.Share.Editor
             };
         }
 
-        private static void StopUploadAction()
+        static void StopUploadAction()
         {
             if (uploadRequest == null) { return; }
             uploadRequest.Abort();
         }
 
-        private static void CheckProgress(Store<AppState> store, string key)
+        static void CheckProgress(Store<AppState> store, string key)
         {
             var token = UnityConnectSession.instance.GetAccessToken();
             if (token.Length == 0)
@@ -200,7 +200,7 @@ namespace Unity.Connect.Share.Editor
             };
         }
 
-        private static void SaveProjectID(string projectId)
+        static void SaveProjectID(string projectId)
         {
             if (projectId.Length == 0) { return; }
 
@@ -209,7 +209,7 @@ namespace Unity.Connect.Share.Editor
             writer.Close();
         }
 
-        private static string GetProjectId()
+        static string GetProjectId()
         {
             if (!File.Exists(WebglSharingFile)) { return string.Empty; }
 
@@ -220,7 +220,7 @@ namespace Unity.Connect.Share.Editor
             return projectId;
         }
 
-        private static IEnumerator UpdateProgress(Store<AppState> store, UnityWebRequest request)
+        static IEnumerator UpdateProgress(Store<AppState> store, UnityWebRequest request)
         {
             EditorWaitForSeconds waitForSeconds = new EditorWaitForSeconds(0.5f);
             while (true)
@@ -234,7 +234,7 @@ namespace Unity.Connect.Share.Editor
             yield return null;
         }
 
-        private static void CheckLoginStatus(Store<AppState> store)
+        static void CheckLoginStatus(Store<AppState> store)
         {
             var token = UnityConnectSession.instance.GetAccessToken();
             if (token.Length != 0)
@@ -248,10 +248,10 @@ namespace Unity.Connect.Share.Editor
             waitUntilUserLogsInRoutine = EditorCoroutineUtility.StartCoroutineOwnerless(WaitUntilUserLogsIn(2f, store));
         }
 
-        private static IEnumerator WaitUntilUserLogsIn(float refreshDelay, Store<AppState> store)
+        static IEnumerator WaitUntilUserLogsIn(float refreshDelay, Store<AppState> store)
         {
             EditorWaitForSeconds waitAmount = new EditorWaitForSeconds(refreshDelay);
-            while (EditorWindow.HasOpenInstances<ShareWindow>())
+            while (EditorWindow.HasOpenInstances<PublisherWindow>())
             {
                 yield return waitAmount; //Debug.LogError("Rechecking login in " + refreshDelay);
                 if (UnityConnectSession.instance.GetAccessToken().Length != 0)
@@ -264,14 +264,14 @@ namespace Unity.Connect.Share.Editor
             waitUntilUserLogsInRoutine = null; //Debug.LogError("Window closed");
         }
 
-        private static IEnumerator RefreshProcessingProgress(float refreshDelay, Store<AppState> store)
+        static IEnumerator RefreshProcessingProgress(float refreshDelay, Store<AppState> store)
         {
             EditorWaitForSeconds waitAmount = new EditorWaitForSeconds(refreshDelay);
             yield return waitAmount;
             store.Dispatch(new QueryProgressAction());
         }
 
-        private static string GetAPIBaseUrl()
+        static string GetAPIBaseUrl()
         {
             string env = UnityConnectSession.instance.GetEnvironment();
             if (env == "staging")
@@ -289,7 +289,7 @@ namespace Unity.Connect.Share.Editor
 
 
     /// <summary>
-    /// The response received on an Upload request
+    /// Represents the response received on an upload request
     /// </summary>
     [Serializable]
     public class UploadResponse
@@ -301,7 +301,7 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// A response that contains data about upload progress
+    /// Represents a response that contains data about upload progress
     /// </summary>
     [Serializable]
     public class GetProgressResponse

@@ -1,6 +1,6 @@
 # About WebGL Publisher
 
-Use the WebGL Publisher to build, publish and share your WebGL project on Unity Play. For example, you can use WebGL Publisher to create, inspect and manage WebGL builds of your project.
+Use the WebGL Publisher to build, publish, and share your WebGL project on Unity Play. You can also use the WebGL Publisher to inspect and manage WebGL builds of your project.
 
 ## Package contents
 
@@ -31,24 +31,22 @@ The zipped build cannot exceed 500 MB.
 
 ## Helpful links
 
-If you are new to WebGL Publisher, or have a question after reading the documentation, you can:
-
-* Join our [support forum](https://www.google.com/url?q=https://forum.unity.com/forums/webgl.84/&sa=D&ust=1603365406629000&usg=AOvVaw0_pjiq-B5xg1bQxrUFfSFX).
+If you are new to the WebGL Publisher or have a question after reading this documentation, you can join our [support forum](https://www.google.com/url?q=https://forum.unity.com/forums/webgl.84/&sa=D&ust=1603365406629000&usg=AOvVaw0_pjiq-B5xg1bQxrUFfSFX).
 
 # Using WebGL Publisher
-To use the WebGL Publisher, you need to install it first. This will create a new menu item called "<b>Publish</b>" in the top bar of the editor.
+To use the WebGL Publisher, you need to install it first. This will create a new menu item called <b>Publish</b> in the top bar of the editor.
 
-Click on _Publish_ > _WebGL Project_ to open the WebGL Publisher, and follow the on-screen instructions it will display in order to Build and Publish your game.
+Click on <b>Publish > WebGL Project</b> to open the WebGL Publisher, and follow the on-screen instructions in order to build and publish your game.
 
 ![The "Publish" menu item](images/menu.png)
 
-Please note that if you are not logged in with your Unity Account, you will be instructed to do so.
+Please note that if you are not logged in with your Unity account, you will be instructed to do so.
 
-If you have not built the project yet, you will be instructed to do so. The Build Settings window will also popup if you have not selected any scene to build.
+If you have not built the project yet, you will be instructed to do so. The <b>Build Settings</b> window will also pop up if you have not selected any scene to build.
 
 You can now upload your project to Unity Play. If the upload succeeds, you will be directed to a page where you can edit the name and description of your project before finally publishing it.
-Finally, you can then share the link of your published project so everybody can play the build.
+You can then share the link of your published project so that everybody can play the build.
 
-By default, the WebGL Publisher will automatically Publish your build once it is ready. If you want to disable this behaviour, you can do it in _Edit_ > _Preferences_ > _WebGL Publisher_
+By default, the WebGL Publisher will automatically publish your build once it is ready. If you want to disable this behavior, select <b>Edit > Preferences > WebGL Publisher.</b>
 
 ![The "Publish" menu item](images/autopublish.png)

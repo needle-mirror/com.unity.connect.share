@@ -1,17 +1,21 @@
 using System.Linq;
 using UnityEngine;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
-    /// base class for all actions
+    /// Represents an event ("action") that can be dispatched when something happens.
+    /// Base class for all actions.
     /// </summary>
-    public class ShareAction {}
+    public class PublisherAction { }
 
     /// <summary>
-    /// Dispatch this action to start the Publishing process
+    /// Represents the event sent to start the publishing process
     /// </summary>
-    public class ShareStartAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action to start the publishing process
+    /// </remarks>
+    public class PublishStartAction : PublisherAction
     {
         /// <summary>
         /// Title of the build
@@ -24,9 +28,12 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to notify about the end of the build process
+    /// Represents the event sent at the end of the build process
     /// </summary>
-    public class BuildFinishAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action when the build process ends
+    /// </remarks>
+    public class BuildFinishAction : PublisherAction
     {
         /// <summary>
         /// Output directory of the build
@@ -40,9 +47,12 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to notify about the end of the Zipping process
+    /// Represents the event sent at the end of the zipping process
     /// </summary>
-    public class ZipPathChangeAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action when the zipping process ends
+    /// </remarks>
+    public class ZipPathChangeAction : PublisherAction
     {
         /// <summary>
         /// Path of the zipped build
@@ -51,9 +61,12 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to start the Upload process
+    /// Represents the event sent to start the upload process
     /// </summary>
-    public class UploadStartAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action to start the upload process
+    /// </remarks>
+    public class UploadStartAction : PublisherAction
     {
         /// <summary>
         /// GUID of the build
@@ -62,9 +75,12 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to query progress data about the Upload process
+    /// Represents the event sent to query progress data about the upload process
     /// </summary>
-    public class UploadProgressAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action to query progress data about the upload process
+    /// </remarks>
+    public class UploadProgressAction : PublisherAction
     {
         /// <summary>
         /// The progress made until now
@@ -73,9 +89,12 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to query progress data
+    /// Represents the event sent to query progress data
     /// </summary>
-    public class QueryProgressAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action to query progress data
+    /// </remarks>
+    public class QueryProgressAction : PublisherAction
     {
         /// <summary>
         /// A key that identifies the action
@@ -84,9 +103,12 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to query progress response data
+    /// Represents the event sent to query progress response data
     /// </summary>
-    public class QueryProgressResponseAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action to query progress response data
+    /// </remarks>
+    public class QueryProgressResponseAction : PublisherAction
     {
         /// <summary>
         /// The response
@@ -95,9 +117,12 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to change the title of the build
+    /// Represents the event sent to change the title of the build
     /// </summary>
-    public class TitleChangeAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action to change the title of the build
+    /// </remarks>
+    public class TitleChangeAction : PublisherAction
     {
         /// <summary>
         /// The new title
@@ -106,14 +131,20 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to destroy the app
+    /// Represents the event sent to destroy the state of the application and reset it
     /// </summary>
-    public class DestroyAction : ShareAction {}
+    /// <remarks>
+    /// Dispatch this action to destroy the state of the application and reset it
+    /// </remarks>
+    public class DestroyAction : PublisherAction { }
 
     /// <summary>
-    /// Dispatch this action to notify an error
+    /// Represents the event sent when an error occurs
     /// </summary>
-    public class OnErrorAction : ShareAction
+    /// <remarks>
+    /// Dispatch this action when an error occurs
+    /// </remarks>
+    public class OnErrorAction : PublisherAction
     {
         /// <summary>
         /// The error message
@@ -122,32 +153,41 @@ namespace Unity.Connect.Share.Editor
     }
 
     /// <summary>
-    /// Dispatch this action to stop the Upload process
+    /// Represents the event sent to stop the upload process
     /// </summary>
-    public class StopUploadAction : ShareAction {}
+    /// <remarks>
+    /// Dispatch this action to stop the upload process
+    /// </remarks>
+    public class StopUploadAction : PublisherAction { }
 
     /// <summary>
-    /// Dispatch this action to Notify that the user is not logged in
+    /// Represents the event sent when the user is not logged in
     /// </summary>
-    public class NotLoginAction : ShareAction {}
+    /// <remarks>
+    /// Dispatch this action when the user is not logged in
+    /// </remarks>
+    public class NotLoginAction : PublisherAction { }
 
     /// <summary>
-    /// Dispatch this action to Notify that the user logged in
+    /// Represents the event sent when the user logs in
     /// </summary>
-    public class LoginAction : ShareAction {}
+    /// <remarks>
+    /// Dispatch this action when the user logs in
+    /// </remarks>
+    public class LoginAction : PublisherAction { }
 
     /// <summary>
-    /// Processes the state of the app
+    /// Updates the state of the application when an action is dispatched
     /// </summary>
-    public class ShareReducer
+    public class PublisherReducer
     {
         /// <summary>
         /// Processes the state of the app according to an action
         /// </summary>
         /// <param name="old">old state</param>
         /// <param name="action">dispatched action</param>
-        /// <returns>an updated AppState</returns>
-        public static AppState reducer(AppState old, object action)
+        /// <returns>Returns an updated AppState</returns>
+        public static AppState Reducer(AppState old, object action)
         {
             switch (action)
             {
@@ -160,32 +200,32 @@ namespace Unity.Connect.Share.Editor
                 case ZipPathChangeAction zip:
                     return old.CopyWith(
                         zipPath: zip.zipPath,
-                        step: ShareStep.Zip
+                        step: PublisherState.Zip
                     );
 
                 case UploadStartAction upload:
                     AnalyticsHelper.UploadStarted();
-                    return old.CopyWith(step: ShareStep.Upload);
+                    return old.CopyWith(step: PublisherState.Upload);
 
                 case QueryProgressAction query:
 
                     return old.CopyWith(
-                        step: ShareStep.Process,
+                        step: PublisherState.Process,
                         key: query.key
                     );
 
                 case UploadProgressAction upload:
-                    ShareWindow.FindInstance()?.OnUploadProgress(upload.progress);
+                    PublisherWindow.FindInstance()?.OnUploadProgress(upload.progress);
                     return old;
 
                 case QueryProgressResponseAction queryResponse:
-                    ShareStep? step = null;
+                    PublisherState? step = null;
                     if (queryResponse.response.progress == 100)
                     {
-                        step = ShareStep.Idle;
+                        step = PublisherState.Idle;
                     }
 
-                    ShareWindow.FindInstance()?.OnProcessingProgress(queryResponse.response.progress);
+                    PublisherWindow.FindInstance()?.OnProcessingProgress(queryResponse.response.progress);
                     return old.CopyWith(url: queryResponse.response.url, step: step);
 
                 case TitleChangeAction titleChangeAction: return old.CopyWith(title: titleChangeAction.title);
@@ -196,9 +236,9 @@ namespace Unity.Connect.Share.Editor
 
                 case StopUploadAction stopUploadAction: return new AppState(buildOutputDir: old.buildOutputDir, buildGUID: old.buildGUID);
 
-                case NotLoginAction login: return old.CopyWith(step: ShareStep.Login);
+                case NotLoginAction login: return old.CopyWith(step: PublisherState.Login);
 
-                case LoginAction login: return old.CopyWith(step: ShareStep.Idle);
+                case LoginAction login: return old.CopyWith(step: PublisherState.Idle);
             }
             return old;
         }

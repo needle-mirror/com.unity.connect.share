@@ -1,9 +1,9 @@
 using UnityEditor;
 using UnityEditor.SettingsManagement;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
-    static class ShareSettingsManager
+    static class PublisherSettingsManager
     {
         internal const string k_PackageName = "com.unity.connect.share";
 
@@ -30,7 +30,7 @@ namespace Unity.Connect.Share.Editor
         {
             var provider = new UserSettingsProvider("Preferences/WebGL Publisher",
                 instance,
-                new[] { typeof(ShareSettingsManager).Assembly });
+                new[] { typeof(PublisherSettingsManager).Assembly });
 
             return provider;
         }

@@ -4,10 +4,10 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.Analytics;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
-    /// The result of the upload process
+    /// Options for representing the result of the upload process
     /// </summary>
     public enum UploadResult
     {

@@ -2,17 +2,17 @@ using System;
 using System.Linq;
 using UnityEditor;
 
-namespace Unity.Connect.Share.Editor
+namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
-    /// A delegate that represents an action dispatcher
+    /// Defines the structure of a method that can be called when an action is dispatched
     /// </summary>
-    /// <param name="action">The dispatched action</param>
+    /// <param name="action">The action to dispatch</param>
     /// <returns></returns>
     public delegate object Dispatcher(object action);
 
     /// <summary>
-    /// A delegate that represents a State reducer
+    /// Defines the structure of a method that can be called when the State reducer
     /// </summary>
     /// <typeparam name="State"></typeparam>
     /// <param name="previousState"></param>
@@ -21,7 +21,7 @@ namespace Unity.Connect.Share.Editor
     public delegate State Reducer<State>(State previousState, object action);
 
     /// <summary>
-    /// A delegate that represents a Middleware capable of altering the state
+    /// Defines the structure of a method that can be called in order to alter the state of the application
     /// </summary>
     /// <typeparam name="State"></typeparam>
     /// <param name="store"></param>
@@ -29,14 +29,14 @@ namespace Unity.Connect.Share.Editor
     public delegate Func<Dispatcher, Dispatcher> Middleware<State>(Store<State> store);
 
     /// <summary>
-    /// A delegate that represents a state change
+    /// Defines the structure of a method that can be called when the state of an object changes
     /// </summary>
     /// <typeparam name="State"></typeparam>
     /// <param name="action"></param>
     public delegate void StateChangedHandler<State>(State action);
 
     /// <summary>
-    /// manages the communication between all the application components
+    /// Manages the communication between all the application components
     /// </summary>
     /// <typeparam name="State"></typeparam>
     public class Store<State>
@@ -50,7 +50,7 @@ namespace Unity.Connect.Share.Editor
         readonly Reducer<State> _reducer;
 
         /// <summary>
-        /// Constructor
+        /// Initializes and returns an instance of Store
         /// </summary>
         /// <param name="reducer"></param>
         /// <param name="initialState"></param>
@@ -68,7 +68,7 @@ namespace Unity.Connect.Share.Editor
         /// Dispatches an action
         /// </summary>
         /// <param name="action"></param>
-        /// <returns></returns>
+        /// <returns>Returns an object affected by the action</returns>
         public object Dispatch(object action)
         {
             return this._dispatcher(action);
