@@ -14,19 +14,16 @@ msgid "INTRODUCTION_TITLE"
 msgstr "WebGL Publisher"
 
 msgid "INTRODUCTION_SUBTITLE_1"
-msgstr "Create a WebGL build of your project and publish it to Unity Play."
-
-msgid "INTRODUCTION_SUBTITLE_2"
-msgstr "Note that building for the first time might take a while and that the editor will be unresponsive during the build."
+msgstr "Create a WebGL build of your project and publish it to Unity Play. Your project will have its own, shareable webpage."
 
 msgid "INTRODUCTION_BUTTON"
-msgstr "Get Started"
+msgstr "Get started"
 
 msgid "NOTLOGGEDIN_TITLE"
-msgstr "Not Signed In"
+msgstr "Please sign in"
 
 msgid "NOTLOGGEDIN_SUBTITLE_1"
-msgstr "You need to be signed in to publish your project"
+msgstr "To publish your project, please sign in"
 
 msgid "NOTLOGGEDIN_BUTTON"
 msgstr "Sign In"
@@ -35,7 +32,7 @@ msgid "INSTALLWEBGL_TITLE"
 msgstr "WebGL Module Not Installed"
 
 msgid "INSTALLWEBGL_SUBTITLE_1"
-msgstr "You need to install the WebGL module to build and share your game"
+msgstr "Please install the WebGL module before building your game"
 
 msgid "INSTALLWEBGL_BUTTON"
 msgstr "How to Install WebGL Module"
@@ -44,7 +41,7 @@ msgid "NOBUILD_TITLE"
 msgstr "Create WebGL Build"
 
 msgid "NOBUILD_INSTRUCTIONS"
-msgstr "Your WebGL project will be public on Unity Play when you build and publish."
+msgstr "Your WebGL project will be public on Unity Play. Your first build might take some time, and the Editor will be unresponsive during the build."
 
 msgid "NOBUILD_BUTTON_BUILD_AUTOPUBLISH"
 msgstr "Build and Publish"
@@ -95,7 +92,7 @@ msgid "UPLOAD_TITLE"
 msgstr "Latest WebGL Builds"
 
 msgid "UPLOAD_BUTTON_BUILD_AUTOPUBLISH"
-msgstr "Create And Publish New Build"
+msgstr "Create and Publish New Build"
 
 msgid "UPLOAD_BUTTON_BUILD_MANUALPUBLISH"
 msgstr "Create New Build"
@@ -131,13 +128,13 @@ msgid "UPLOAD_CONTAINER_CREATION_DATE"
 msgstr "Created: {0} with Unity {1}"
 
 msgid "POPUP_SWITCH_TITLE"
-msgstr "Switch Platform"
+msgstr "Select WebGL in Build Settings"
 
 msgid "POPUP_SWITCH_MESSAGE"
-msgstr "It seems that you have not selected WebGL platform. Would you like to switch now?"
+msgstr "To create your build, WebGL must be selected as the platform in Build Settings. Would you like to select it now?"
 
 msgid "POPUP_SWITCH_YES"
-msgstr "Switch to WebGL"
+msgstr "Go to Build Settings"
 
 msgid "POPUP_SWITCH_NO"
 msgstr "Cancel"
@@ -158,13 +155,13 @@ msgid "ERROR_MAX_SIZE"
 msgstr "Max. allowed WebGL game .zip size is {0}."
 
 msgid "ERROR_BUILD_ABSENT"
-msgstr "Please build project first!"
+msgstr "Project must be built first!"
 
 msgid "ERROR_BUILD_NOT_FOUND"
 msgstr "Build folder not found"
 
 msgid "ERROR_BUILD_CORRUPTED"
-msgstr "This build is corrupted or missing, please delete it and choose another one to publish"
+msgstr "This build is corrupted or missing. Please delete it and choose another one to publish."
 
 msgid "DIALOG_CHOOSE_FOLDER"
 msgstr "Choose folder"

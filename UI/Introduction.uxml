@@ -4,7 +4,6 @@
         <ui:VisualElement name="imgLogo" class="status-icon status-icon-build-and-share" />
         <ui:Label text="WebGL Publisher" name="lblTitle" class="progress-label" />
         <ui:Label text="Create a WebGL build of your project and publish it to Unity website." name="lblSubTitle1" class="info-text" />
-        <ui:Label text="Note that building for the first time might take a while and that the editor will be unresponsive during the build." name="lblSubTitle2" class="info-text" />
     </ui:VisualElement>
     <ui:Button text="Get Started" name="btnGetStarted" class="bottom-button bottom-button-blue">
         <Style src="Styles.uss" />

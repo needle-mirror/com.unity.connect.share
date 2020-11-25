@@ -16,9 +16,6 @@ msgstr "WebGL Publisher"
 msgid "INTRODUCTION_SUBTITLE_1"
 msgstr "Create a WebGL build of your project and publish it to Unity Play."
 
-msgid "INTRODUCTION_SUBTITLE_2"
-msgstr "Note that building for the first time might take a while and that the editor will be unresponsive during the build."
-
 msgid "INTRODUCTION_BUTTON"
 msgstr "Get Started"
 

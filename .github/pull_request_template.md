@@ -8,12 +8,6 @@ Describe the changes made in this PR.
 
 <!-- use [x] to tick a box -->
 
-### Affected package(s)
-
-- [ ] Tutorial Framework
-- [ ] Tutorial Authoring Tools
-- [ ] N/A (please describe)
-
 ### Types of change(s)
 
 - [ ] Bug fix

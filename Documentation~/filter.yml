@@ -22,3 +22,6 @@ apiRules:
   - exclude:
       uidRegex: UnityConnectSession
       type: Class
+  - exclude:
+      uidRegex: LocalizationDatabaseBridge
+      type: Class

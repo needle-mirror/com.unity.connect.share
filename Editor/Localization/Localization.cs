@@ -4,6 +4,7 @@
 [assembly: UnityEditor.Localization.Editor.Localization]
 #endif
 
+
 namespace Unity.Play.Publisher.Editor
 {
     /// <summary>
@@ -11,6 +12,12 @@ namespace Unity.Play.Publisher.Editor
     /// </summary>
     static class Localization
     {
+        [UnityEditor.InitializeOnLoadMethod]
+        static void ForceEnableLocalization()
+        {
+            LocalizationDatabaseBridge.ForceEnableLocalization();
+        }
+
         /// <summary>
         /// Routes the call to the correct, or none, Tr() implementation depending on the used Unity version.
         /// See https://docs.unity3d.com/ScriptReference/Localization.Editor.Localization.Tr.html.

@@ -312,7 +312,6 @@ namespace Unity.Play.Publisher.Editor
         {
             SetupLabel("lblTitle", "INTRODUCTION_TITLE", true);
             SetupLabel("lblSubTitle1", "INTRODUCTION_SUBTITLE_1", true);
-            SetupLabel("lblSubTitle2", "INTRODUCTION_SUBTITLE_2", true);
             SetupButton("btnGetStarted", OnGetStartedClicked, true, null, "INTRODUCTION_BUTTON", true);
         }
 
