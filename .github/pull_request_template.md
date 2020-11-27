@@ -4,7 +4,6 @@ Describe the changes made in this PR.
 
 ### Related links
 - JIRA/Favro/Airtable
-- etc.
 
 <!-- use [x] to tick a box -->
 
@@ -14,7 +13,7 @@ Describe the changes made in this PR.
 - [ ] New feature
 - [ ] New public API
 - [ ] Code refactor
-- [ ] UI/UX (consult and/or add Antti as a reviewer)
+- [ ] UI/UX (consult and/or add Antti/Annalise as a reviewer)
 - [ ] Breaking change
 - [ ] Package documentation update (consult and/or add Annalise as a reviewer)
 - [ ] Other (please describe)
@@ -27,8 +26,9 @@ Describe the changes made in this PR.
 
 ### How to test/validate
 
-1. this
-2. that
+1. Clone this branch and Install The WebGL Package in an empty project
+2. Do X
+3. Check Y
 
 ### Other comments
 

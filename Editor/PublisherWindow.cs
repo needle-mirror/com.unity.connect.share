@@ -343,7 +343,7 @@ namespace Unity.Play.Publisher.Editor
         void SetupSuccessTab()
         {
             AnalyticsHelper.UploadCompleted(UploadResult.Succeeded);
-            UpdateGameTitle();
+            FormatGameTitle();
 
             SetupLabel("lblMessage", "SUCCESS_MESSAGE", true);
             SetupLabel("lblAdvice", "SUCCESS_ADVICE", true);
@@ -361,13 +361,13 @@ namespace Unity.Play.Publisher.Editor
 
         void SetupUploadingTab()
         {
-            UpdateGameTitle();
+            FormatGameTitle();
             SetupButton("btnCancel", OnCancelUploadClicked, true, null, "UPLOADING_BUTTON", true);
         }
 
         void SetupProcessingTab()
         {
-            UpdateGameTitle();
+            FormatGameTitle();
             SetupButton("btnCancel", OnCancelUploadClicked, true, null, "PROCESSING_BUTTON", true);
         }
 
@@ -407,10 +407,16 @@ namespace Unity.Play.Publisher.Editor
         DropdownMenuAction.Status GetAutoPublishCheckboxStatus()
         {
             return autoPublishSuccessfulBuilds ? DropdownMenuAction.Status.Checked
-                : DropdownMenuAction.Status.Normal;
+                                               : DropdownMenuAction.Status.Normal;
         }
 
-        void UpdateGameTitle()
+        static string GetGameTitleFromPath(string buildPath)
+        {
+            if (!buildPath.Contains("/")) { return buildPath; }
+            return buildPath.Split('/').Last();
+        }
+
+        void FormatGameTitle()
         {
             gameTitle = PublisherUtils.GetFilteredGameTitle(gameTitle);
         }
@@ -522,7 +528,7 @@ namespace Unity.Play.Publisher.Editor
             EditorUtility.RevealInFinder(buildPath);
         }
 
-        void OnPublishClicked(string gameBuildPath)
+        void OnPublishClicked(string gameBuildPath, string gameTitle)
         {
             AnalyticsHelper.ButtonClicked(string.Format("{0}_Publish", CurrentTab));
             if (!PublisherUtils.BuildIsValid(gameBuildPath))
@@ -531,6 +537,8 @@ namespace Unity.Play.Publisher.Editor
                 return;
             }
 
+            this.gameTitle = gameTitle;
+            FormatGameTitle();
             Store.Dispatch(new PublishStartAction() { title = gameTitle, buildPath = gameBuildPath });
         }
 
@@ -572,7 +580,7 @@ namespace Unity.Play.Publisher.Editor
         {
             if (autoPublishSuccessfulBuilds)
             {
-                OnPublishClicked(buildPath);
+                OnPublishClicked(buildPath, GetGameTitleFromPath(buildPath));
             }
 
             if (CurrentTab != TabUpload) { return; }
@@ -587,10 +595,10 @@ namespace Unity.Play.Publisher.Editor
         {
             if (PublisherUtils.BuildIsValid(buildPath))
             {
-                string gameTitle = buildPath.Split('/').Last();
+                string gameTitle = GetGameTitleFromPath(buildPath);
                 SetupButton("btnOpenFolder", () => OnOpenBuildFolderClicked(buildPath), true, container, Localization.Tr("UPLOAD_CONTAINER_BUTTON_OPEN_TOOLTIP"));
                 SetupButton("btnDelete", () => OnDeleteClicked(buildPath, gameTitle), true, container, Localization.Tr("UPLOAD_CONTAINER_BUTTON_DELETE_TOOLTIP"));
-                SetupButton("btnShare", () => OnPublishClicked(buildPath), true, container, Localization.Tr("UPLOAD_CONTAINER_BUTTON_PUBLISH_TOOLTIP"), "UPLOAD_CONTAINER_BUTTON_PUBLISH", true);
+                SetupButton("btnShare", () => OnPublishClicked(buildPath, gameTitle), true, container, Localization.Tr("UPLOAD_CONTAINER_BUTTON_PUBLISH_TOOLTIP"), "UPLOAD_CONTAINER_BUTTON_PUBLISH", true);
                 SetupLabel("lblLastBuildInfo", string.Format(Localization.Tr("UPLOAD_CONTAINER_CREATION_DATE"), File.GetLastWriteTime(buildPath), PublisherUtils.GetUnityVersionOfBuild(buildPath)), container);
                 SetupLabel("lblGameTitle", gameTitle, container);
                 SetupLabel("lblBuildSize", string.Format(Localization.Tr("UPLOAD_CONTAINER_BUILD_SIZE"), PublisherUtils.FormatBytes(PublisherUtils.GetFolderSize(buildPath))), container);

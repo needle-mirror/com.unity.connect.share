@@ -218,13 +218,13 @@ namespace Unity.Play.Publisher.Editor
         }
 
         /// <summary>
-        /// Filters the name of the game, removing all spaces.
+        /// Filters the name of the game, ensuring it contains something more than just spaces.
         /// </summary>
         /// <param name="currentGameTitle">The original name of the game</param>
         /// <example>
         /// <code source="./Examples/PublisherExamples.cs" region="GetFilteredGameTitle" title="GetFilteredGameTitle"/>
         /// </example>
-        /// <returns>Returns the name of the game without spaces, or a default name if the result would be invalid.</returns>
+        /// <returns>Returns the name of the game if it contains something different than just spaces, or a default name in case the original one only contains spaces.</returns>
         public static string GetFilteredGameTitle(string currentGameTitle)
         {
             if (string.IsNullOrEmpty(currentGameTitle?.Trim())) { return DefaultGameName; }

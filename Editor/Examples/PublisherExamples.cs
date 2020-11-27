@@ -77,7 +77,7 @@ namespace Unity.Play.Publisher.Editor
         {
             void Start()
             {
-                string filteredTitle = PublisherUtils.GetFilteredGameTitle("A title with spaces"); //returns "Atitlewithspaces"
+                string filteredTitle = PublisherUtils.GetFilteredGameTitle("A title with spaces"); //returns "A title with spaces"
                 filteredTitle = PublisherUtils.GetFilteredGameTitle("     "); //returns "Untitled" (the value of PublisherUtils.DefaultGameName)
             }
         }

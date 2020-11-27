@@ -80,7 +80,7 @@ namespace Unity.Play.Publisher.Editor
 
             if (fileInfo.Length > ZipFileLimitBytes)
             {
-                store.Dispatch(new OnErrorAction { errorMsg = string.Format(Localization.Tr("ERROR_MAX_SIZE"), PublisherUtils.FormatBytes(ZipFileLimitBytes))});
+                store.Dispatch(new OnErrorAction { errorMsg = string.Format(Localization.Tr("ERROR_MAX_SIZE"), PublisherUtils.FormatBytes(ZipFileLimitBytes)) });
                 return false;
             }
             store.Dispatch(new ZipPathChangeAction { zipPath = destPath });
