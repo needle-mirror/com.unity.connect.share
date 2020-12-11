@@ -4,6 +4,10 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2020-12-11
+### Changed
+- [UI] Added text localization for all existing editor languages
+
 ## [4.0.3] - 2020-11-27
 ### Changed
 - [Feature] Uploaded games use the name of the build instead of "Untitled" as the title of the game
