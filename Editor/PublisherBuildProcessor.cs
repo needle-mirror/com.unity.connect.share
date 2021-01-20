@@ -80,7 +80,7 @@ namespace Unity.Play.Publisher.Editor
             }
         }
 
-        static IEnumerator WritePackagesList(string dependenciesFilePath)
+        static IEnumerator WritePackagesListAndFinalizeBuild(string dependenciesFilePath)
         {
             var request = UnityEditor.PackageManager.Client.List(false, false);
             while (!request.IsCompleted)
@@ -138,7 +138,7 @@ namespace Unity.Play.Publisher.Editor
 
                 // dependencies.txt: list of "depepedency@version"
                 string dependenciesFilePath = $"{outputPath}/dependencies.txt";
-                EditorCoroutineUtility.StartCoroutineOwnerless(WritePackagesList(dependenciesFilePath));
+                EditorCoroutineUtility.StartCoroutineOwnerless(WritePackagesListAndFinalizeBuild(dependenciesFilePath));
             }
             catch (Exception e)
             {

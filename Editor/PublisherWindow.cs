@@ -731,10 +731,7 @@ namespace Unity.Play.Publisher.Editor
                 return;
             }
 
-            (bool buildSucceeded, string buildPath) = PublisherBuildProcessor.OpenBuildGameDialog(BuildTarget.WebGL);
-            if (!buildSucceeded) { return; }
-
-            OnBuildCompleted(buildPath);
+            PublisherBuildProcessor.OpenBuildGameDialog(BuildTarget.WebGL);
         }
 
         /// <summary>
