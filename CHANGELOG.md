@@ -4,6 +4,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.2.1] - 2021-03-17
+### Changed
+- [Project] Updated Third Party Notices
+
+## [4.2.0] - 2021-03-15
+### Added
+- [Feature] When creating a build, the current scene is automatically added to the list of scenes to build if the list is empty
+- [UI] A popup is displayed if the current scene can't be added to the list of scenes to build
 
 ## [4.1.1] - 2021-01-20
 ### Fixed

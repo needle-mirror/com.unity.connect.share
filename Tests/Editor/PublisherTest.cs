@@ -3,9 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.Hosting;
 using System.Threading;
+using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 namespace Unity.Play.Publisher.Editor.Tests
@@ -14,15 +18,28 @@ namespace Unity.Play.Publisher.Editor.Tests
     {
         PublisherWindow publisherWindow;
         string outputFolder;
+        string sceneOutputFolder;
+        string sceneOutputFolderSystemPath;
+        string sceneOutputFolderMetaSystemPath;
+        string[] originalScenesList;
 
         [UnitySetUp]
         public IEnumerator SetUp()
         {
-            outputFolder = Path.Combine(UnityEngine.Application.temporaryCachePath, "TempBuild/");
+
+            outputFolder = Path.Combine(Application.temporaryCachePath, "TempBuild/");
             if (!Directory.Exists(outputFolder))
             {
                 Directory.CreateDirectory(outputFolder);
             }
+
+            originalScenesList = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes);
+
+            sceneOutputFolderSystemPath = Application.dataPath + "/TempScenes/";
+            sceneOutputFolderMetaSystemPath = Application.dataPath + "/TempScenes.meta";
+            sceneOutputFolder = "Assets/TempScenes/";
+            AssetDatabase.CreateFolder("Assets", "TempScenes");
+
             publisherWindow = PublisherWindow.OpenWindow();
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 
@@ -39,6 +56,22 @@ namespace Unity.Play.Publisher.Editor.Tests
             {
                 Directory.Delete(outputFolder, true);
             }
+
+            if (Directory.Exists(sceneOutputFolderSystemPath))
+            {
+                Directory.Delete(sceneOutputFolderSystemPath, true);
+                File.Delete(sceneOutputFolderMetaSystemPath);
+            }
+
+            AssetDatabase.Refresh();
+
+            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
+            foreach (var scenePath in originalScenesList)
+            {
+                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenePath, true));
+
+            }
+            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
             publisherWindow.Close();
         }
 
@@ -93,6 +126,45 @@ namespace Unity.Play.Publisher.Editor.Tests
 
             File.WriteAllLines(Path.Combine(outputFolder, "ProjectVersion.txt"), lines);
             Assert.AreEqual(string.Empty, PublisherUtils.GetUnityVersionOfBuild(outputFolder));
+        }
+
+        [Test]
+        public void AddCurrentSceneToBuildSettings_SceneAssetExists_SceneIsAdded()
+        {
+            string[] currentScenesList = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes);
+            int originalListElementsCount = currentScenesList.Length;
+
+            Assert.IsTrue(EditorSceneManager.SaveScene(SceneManager.GetActiveScene(), sceneOutputFolder + "tempScene.unity"));
+
+            string currentScenePath = SceneManager.GetActiveScene().path;
+            Assert.IsNotEmpty(currentScenePath);
+            Assert.IsFalse(currentScenesList.Contains(currentScenePath));
+
+            bool sceneWasAdded = PublisherUtils.AddCurrentSceneToBuildSettings();
+            currentScenesList = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes);
+
+            Assert.AreEqual(originalListElementsCount + 1, currentScenesList.Length);
+            Assert.IsTrue(sceneWasAdded);
+            Assert.IsTrue(currentScenesList.Contains(currentScenePath));
+
+        }
+
+        [Test]
+        public void AddCurrentSceneToBuildSettings_SceneAssetDoesNotExist_SceneIsNotAdded()
+        {
+            string[] currentScenesList = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes);
+            int originalListElementsCount = currentScenesList.Length;
+
+            string currentScenePath = SceneManager.GetActiveScene().path;
+            Assert.IsEmpty(currentScenePath);
+            Assert.IsFalse(currentScenesList.Contains(currentScenePath));
+
+            bool sceneWasAdded = PublisherUtils.AddCurrentSceneToBuildSettings();
+            currentScenesList = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes);
+
+            Assert.AreEqual(originalListElementsCount, currentScenesList.Length);
+            Assert.IsFalse(sceneWasAdded);
+            Assert.IsFalse(currentScenesList.Contains(currentScenePath));
         }
     }
 }

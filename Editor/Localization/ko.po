@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: Mon Dec 07 2020 09:04:20 GMT+0000 (Coordinated Universal Time)\n"
+"POT-Creation-Date: Mon Mar 15 2021 05:59:06 GMT+0000 (Coordinated Universal Time)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,7 +21,7 @@ msgctxt "WebGL Publisher"
 msgid "INTRODUCTION_TITLE"
 msgstr "WebGL 퍼블리셔"
 
-#. 23421317
+#. 24802969
 #: com.unity.connect.share.pot:3
 msgctxt "Create a WebGL build of your project and publish it to Unity Play. Your project will have its own, shareable webpage."
 msgid "INTRODUCTION_SUBTITLE_1"
@@ -75,7 +75,7 @@ msgctxt "Create WebGL Build"
 msgid "NOBUILD_TITLE"
 msgstr "WebGL 빌드 생성"
 
-#. 23421318
+#. 24802970
 #: com.unity.connect.share.pot:12
 msgctxt "Your WebGL project will be public on Unity Play. Your first build might take some time, and the Editor will be unresponsive during the build."
 msgid "NOBUILD_INSTRUCTIONS"
@@ -255,7 +255,7 @@ msgctxt "Switch Platform"
 msgid "POPUP_SWITCH_TITLE"
 msgstr "플랫폼 변경"
 
-#. 23421319
+#. 24802971
 #: com.unity.connect.share.pot:42
 msgctxt "WebGL is not the selected platform. Would you like to switch to it now?"
 msgid "POPUP_SWITCH_MESSAGE"
@@ -315,7 +315,7 @@ msgctxt "Build folder not found"
 msgid "ERROR_BUILD_NOT_FOUND"
 msgstr "빌드 폴더를 찾을 수 없습니다"
 
-#. 23421320
+#. 24802972
 #: com.unity.connect.share.pot:52
 msgctxt "This build is corrupted or missing. Please delete it and choose another one to publish."
 msgid "ERROR_BUILD_CORRUPTED"
@@ -332,3 +332,18 @@ msgstr "폴더 선택"
 msgctxt "Choose Folder for New WebGL Build"
 msgid "DIALOG_CHOOSE_BUILD_FOLDER"
 msgstr "새 WebGL 빌드의 폴더 선택"
+
+#. 24802973
+#: com.unity.connect.share.pot:55
+msgid "POPUP_SAVE_SCENE_TITLE"
+msgstr "씬을 저장하세요"
+
+#. 24802974
+#: com.unity.connect.share.pot:56
+msgid "POPUP_SAVE_SCENE_MESSAGE"
+msgstr "WebGL 빌드를 생성하기 전에 씬을 저장해야 합니다. Ctrl/Cmd+S를 누르거나 File > Save로 이동해 씬을 저장합니다. 그런 다음 빌드를 시작할 수 있습니다."
+
+#. 24802975
+#: com.unity.connect.share.pot:57
+msgid "POPUP_SAVE_SCENE_OK"
+msgstr "확인"

@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: Mon Dec 07 2020 09:04:34 GMT+0000 (Coordinated Universal Time)\n"
+"POT-Creation-Date: Mon Mar 15 2021 05:59:00 GMT+0000 (Coordinated Universal Time)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,7 +21,7 @@ msgctxt "WebGL Publisher"
 msgid "INTRODUCTION_TITLE"
 msgstr "WebGL Publisher"
 
-#. 23421317
+#. 24802969
 #: com.unity.connect.share.pot:3
 msgctxt "Create a WebGL build of your project and publish it to Unity Play. Your project will have its own, shareable webpage."
 msgid "INTRODUCTION_SUBTITLE_1"
@@ -75,7 +75,7 @@ msgctxt "Create WebGL Build"
 msgid "NOBUILD_TITLE"
 msgstr "创建 WebGL 版本"
 
-#. 23421318
+#. 24802970
 #: com.unity.connect.share.pot:12
 msgctxt "Your WebGL project will be public on Unity Play. Your first build might take some time, and the Editor will be unresponsive during the build."
 msgid "NOBUILD_INSTRUCTIONS"
@@ -255,7 +255,7 @@ msgctxt "Switch Platform"
 msgid "POPUP_SWITCH_TITLE"
 msgstr "切换平台"
 
-#. 23421319
+#. 24802971
 #: com.unity.connect.share.pot:42
 msgctxt "WebGL is not the selected platform. Would you like to switch to it now?"
 msgid "POPUP_SWITCH_MESSAGE"
@@ -315,7 +315,7 @@ msgctxt "Build folder not found"
 msgid "ERROR_BUILD_NOT_FOUND"
 msgstr "未找到版本文件夹"
 
-#. 23421320
+#. 24802972
 #: com.unity.connect.share.pot:52
 msgctxt "This build is corrupted or missing. Please delete it and choose another one to publish."
 msgid "ERROR_BUILD_CORRUPTED"
@@ -332,3 +332,18 @@ msgstr "选择文件夹"
 msgctxt "Choose Folder for New WebGL Build"
 msgid "DIALOG_CHOOSE_BUILD_FOLDER"
 msgstr "为新的 WebGL 版本选择文件夹"
+
+#. 24802973
+#: com.unity.connect.share.pot:55
+msgid "POPUP_SAVE_SCENE_TITLE"
+msgstr "保存场景"
+
+#. 24802974
+#: com.unity.connect.share.pot:56
+msgid "POPUP_SAVE_SCENE_MESSAGE"
+msgstr "在创建 WebGL 版本之前，您需要先保存场景。按 Ctrl / Cmd + S 或转到 File > Save 进行保存。之后，您就可以开始构建了。"
+
+#. 24802975
+#: com.unity.connect.share.pot:57
+msgid "POPUP_SAVE_SCENE_OK"
+msgstr "确认"

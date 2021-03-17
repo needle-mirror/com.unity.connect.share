@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 namespace Unity.Play.Publisher.Editor
@@ -192,6 +193,21 @@ namespace Unity.Play.Publisher.Editor
 
             string version = File.ReadAllLines(versionFile)[0].Split(' ')[1].Substring(0, 6); //The row is something like: m_EditorVersion: 2019.3.4f1, so it will return 2019.3
             return Regex.IsMatch(version, ProjectVersionRegex) ?  version : string.Empty;
+        }
+
+        internal static bool AddCurrentSceneToBuildSettings()
+        {
+            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
+            string currentScenePath = SceneManager.GetActiveScene().path;
+
+            if (string.IsNullOrEmpty(currentScenePath))
+            {
+                return false;
+            }
+
+            editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(currentScenePath, true));
+            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
+            return true;
         }
 
         /// <summary>

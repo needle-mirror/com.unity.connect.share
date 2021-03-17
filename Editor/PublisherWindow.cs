@@ -664,10 +664,22 @@ namespace Unity.Play.Publisher.Editor
         static void OpenConnectUrl(string url)
         {
             if (UnityConnectSession.instance.GetAccessToken().Length > 0)
+            {
                 UnityConnectSession.OpenAuthorizedURLInWebBrowser(url);
-            else
-                Application.OpenURL(url);
+                return;
+            }
+            Application.OpenURL(url);
         }
+
+        static void ShowSaveScenePopup()
+        {
+            string title = Localization.Tr("POPUP_SAVE_SCENE_TITLE");
+            string message = Localization.Tr("POPUP_SAVE_SCENE_MESSAGE");
+            string okButtonText = Localization.Tr("POPUP_SAVE_SCENE_OK");
+
+            EditorUtility.DisplayDialog(title, message, okButtonText);
+        }
+
 
         static bool ShowSwitchToWebGLPopup()
         {
@@ -727,10 +739,12 @@ namespace Unity.Play.Publisher.Editor
             bool buildSettingsHaveNoActiveScenes = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes).Length == 0;
             if (buildSettingsHaveNoActiveScenes)
             {
-                BuildPlayerWindow.ShowBuildPlayerWindow();
-                return;
+                if (!PublisherUtils.AddCurrentSceneToBuildSettings())
+                {
+                    ShowSaveScenePopup();
+                    return;
+                }
             }
-
             PublisherBuildProcessor.OpenBuildGameDialog(BuildTarget.WebGL);
         }
 

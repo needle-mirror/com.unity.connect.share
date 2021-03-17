@@ -168,3 +168,12 @@ msgstr "Choose folder"
 
 msgid "DIALOG_CHOOSE_BUILD_FOLDER"
 msgstr "Choose Folder for New WebGL Build"
+
+msgid "POPUP_SAVE_SCENE_TITLE"
+msgstr "Save your Scene"
+
+msgid "POPUP_SAVE_SCENE_MESSAGE"
+msgstr "Before creating a WebGL build, you need to save your Scene. Press Ctrl / Cmd + S or go to File > Save. After saving, you can start the build process."
+
+msgid "POPUP_SAVE_SCENE_OK"
+msgstr "Ok"
