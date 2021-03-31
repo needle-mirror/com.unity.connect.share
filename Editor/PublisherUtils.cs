@@ -197,7 +197,6 @@ namespace Unity.Play.Publisher.Editor
 
         internal static bool AddCurrentSceneToBuildSettings()
         {
-            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
             string currentScenePath = SceneManager.GetActiveScene().path;
 
             if (string.IsNullOrEmpty(currentScenePath))
@@ -205,6 +204,12 @@ namespace Unity.Play.Publisher.Editor
                 return false;
             }
 
+            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
+            string[] currentScenesList = EditorBuildSettingsScene.GetActiveSceneList(EditorBuildSettings.scenes);
+            foreach (var scenePath in currentScenesList)
+            {
+                editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(scenePath, true));
+            }
             editorBuildSettingsScenes.Add(new EditorBuildSettingsScene(currentScenePath, true));
             EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
             return true;

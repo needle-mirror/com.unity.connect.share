@@ -20,7 +20,7 @@ namespace Unity.Play.Publisher.Editor
         const string UploadEndpoint = "/api/webgl/upload";
         const string QueryProgressEndpoint = "/api/webgl/progress";
         const string UndefinedGUID = "UNDEFINED_GUID";
-        const int ZipFileLimitBytes = 500 * 1024 * 1024;
+        const int ZipFileLimitBytes = 200 * 1024 * 1024;
 
         static EditorCoroutine waitUntilUserLogsInRoutine;
         static UnityWebRequest uploadRequest;

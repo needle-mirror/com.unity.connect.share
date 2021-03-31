@@ -114,11 +114,9 @@ namespace Unity.Play.Publisher.Editor
         /// <returns>Returns null if the value is not set</returns>
         static string GetTemplatePackageID()
         {
-            var projectSettings = UnityEditorInternal.InternalEditorUtility.LoadSerializedFileAndForget("ProjectSettings/ProjectSettings.asset");
-            using (var so = new SerializedObject(projectSettings[0]))
-            {
-                return so.FindProperty("templatePackageId")?.stringValue;
-            }
+            const string projectSettingsAssetPath = "ProjectSettings/ProjectSettings.asset";
+            SerializedObject projectSettings = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath(projectSettingsAssetPath)[0]);
+            return projectSettings.FindProperty("templatePackageId")?.stringValue;
         }
 
         /// <summary>
