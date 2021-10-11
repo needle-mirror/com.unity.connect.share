@@ -1,6 +1,6 @@
 # WebGL Publisher
 
-Use this package to publish and share your WebGL game on Unity Connect.
+Use this package to build and publish your WebGL project on Unity Play.
 
 ### Installation
 To add this package your project, go to _Window_ > _Package Manager_ and install the latest version of the package.
@@ -10,7 +10,7 @@ To add this package your project, go to _Window_ > _Package Manager_ and install
 - Click menu on the top of editor (_Publish_ > _WebGL Project_).
 - If you are not logged in, you will be instructed to do so.
 - If you have not built the project yet, you will be instructed to do so.
-- You can now upload your project to Unity Connect. If the upload succeeds, you will be directed to a page where you can edit the name and description of your project before finally publishing it.
+- You can now upload your project to Unity Play. If the upload succeeds, you will be directed to a page where you can edit the name and description of your project before finally publishing it.
 - You can then share the link of your published project so everybody can play the build.
 
 ## Requirements
@@ -20,4 +20,4 @@ This version of WebGL Publisher is compatible with the following versions of the
 * 2019.3 and later
 
 ## Limitations
-The zipped build cannot exceed 500 MB.
+The zipped build cannot exceed 200 MB.
